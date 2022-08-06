@@ -71,12 +71,13 @@ public final class Constantes {
 	public static final long ID_ESTATUS_DISPERSION_EN_PROCESO = 1;
 	public static final long ID_ESTATUS_DISPERSION_PROCESANDO = 2;
 	public static final long ID_ESTATUS_DISPERSION_CONCLUIDO = 3;
+	
 	public static final String TIPO_VALIDACION_ORDINARIA = "ordinaria";
 	public static final String TIPO_VALIDACION_COMPLEMENTARIA = "complementaria";
 	public static final String NOMBRE_ARCHIVO_REPORTE = "reporte_dispersion";
 	public static final String EXTENSION_ZIP = ".zip";
 	public static final String CONTENT_TYPE_ZIP = "application/zip";
-
+	
 	public static final String UTILES_ESCOLARES = "Útiles escolares";
 	public static final String ROPA = "Ropa";
 	public static final String ZAPATOS = "Zapatos";

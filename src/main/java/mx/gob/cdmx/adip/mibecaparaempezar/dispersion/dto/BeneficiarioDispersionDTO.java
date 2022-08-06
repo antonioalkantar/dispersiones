@@ -13,6 +13,7 @@ public class BeneficiarioDispersionDTO {
 	private CatMontoApoyoDTO catMontoApoyo;
 	private Date fechaCreacion;
 	private Boolean esComplementaria;
+	private Long idBeneficiarioSinDispersion;
 
 	public BeneficiarioDispersionDTO() {
 		catCicloEscolar = new CatCicloEscolarDTO();
@@ -105,6 +106,14 @@ public class BeneficiarioDispersionDTO {
 
 	public void setEsComplementaria(Boolean esComplementaria) {
 		this.esComplementaria = esComplementaria;
+	}
+
+	public Long getIdBeneficiarioSinDispersion() {
+		return idBeneficiarioSinDispersion;
+	}
+
+	public void setIdBeneficiarioSinDispersion(Long idBeneficiarioSinDispersion) {
+		this.idBeneficiarioSinDispersion = idBeneficiarioSinDispersion;
 	}
 	
 }

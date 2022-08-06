@@ -13,7 +13,7 @@ public class BeneficiarioSinDispersionDTO {
 	private CatMotivoNoDispersionDTO catMotivoNoDispersion;
 	private CatMontoApoyoDTO catMontoApoyo;
 	private Date fechaCreacion;
-	private Boolean esComplementaria;
+	private Long idBeneficiarioDispersion;
 
 	public BeneficiarioSinDispersionDTO() {
 		catCicloEscolar = new CatCicloEscolarDTO();
@@ -25,7 +25,7 @@ public class BeneficiarioSinDispersionDTO {
 
 	public BeneficiarioSinDispersionDTO(Long idBeneficiarioSinDispersion, String curpBeneficiario, Long idDispersion, 
 			Long idCicloEscolar, String descripcionCicloEscolar, Long idPeriodoEscolar, String descripcionPeriodo, 
-			Integer idNivel, String descripcion, Integer idMontoApoyo, Long idMotivoNoDispersion, String descripcionMotivoNoDispersion, Date fechaCreacion, Boolean esComplementaria) {
+			Integer idNivel, String descripcion, Integer idMontoApoyo, Long idMotivoNoDispersion, String descripcionMotivoNoDispersion, Date fechaCreacion) {
 		this.idBeneficiarioSinDispersion = idBeneficiarioSinDispersion;
 		this.curpBeneficiario = curpBeneficiario;
 		this.dispersion = new DispersionDTO(idDispersion);
@@ -35,7 +35,6 @@ public class BeneficiarioSinDispersionDTO {
 		this.catMotivoNoDispersion= new CatMotivoNoDispersionDTO(idMotivoNoDispersion, descripcionMotivoNoDispersion);
 		this.catMontoApoyo = new CatMontoApoyoDTO(idMontoApoyo);
 		this.fechaCreacion= fechaCreacion;
-		this.esComplementaria = esComplementaria;
 	}
 
 	public Long getIdBeneficiarioSinDispersion() {
@@ -110,12 +109,11 @@ public class BeneficiarioSinDispersionDTO {
 		this.fechaCreacion = fechaCreacion;
 	}
 
-	public Boolean getEsComplementaria() {
-		return esComplementaria;
+	public Long getIdBeneficiarioDispersion() {
+		return idBeneficiarioDispersion;
 	}
 
-	public void setEsComplementaria(Boolean esComplementaria) {
-		this.esComplementaria = esComplementaria;
+	public void setIdBeneficiarioDispersion(Long idBeneficiarioDispersion) {
+		this.idBeneficiarioDispersion = idBeneficiarioDispersion;
 	}
-	
 }

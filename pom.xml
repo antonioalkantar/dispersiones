@@ -1,0 +1,236 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>mx.gob.cdmx.adip.mibecaparaempezar</groupId>
+  <artifactId>dispersion</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  
+   <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <java.version>1.8</java.version>
+        
+        <log4j.version>2.17.2</log4j.version>
+   </properties>
+   
+   <dependencies>
+		<!-- Soporte para generar logs con Apache Log4J-->
+		<dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+		<!-- Soporte para generar logs con Apache Log4J-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+		
+		<!-- Driver para conectarse a la BD Postgres -->
+		<dependency>
+		   	<groupId>org.postgresql</groupId>
+		   	<artifactId>postgresql</artifactId>
+		   	<version>42.2.6</version>
+		</dependency>
+		
+		<!-- Para crear un datasource/pool de conexiones  -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-dbcp2</artifactId>
+		    <version>2.9.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.12.0</version>
+		</dependency>
+		
+		<!-- Para leer archivos CSV -->
+		<dependency>
+		    <groupId>com.opencsv</groupId>
+		    <artifactId>opencsv</artifactId>
+		    <version>5.6</version>
+		</dependency>
+		
+		<!--  Como complemento al artifactId opencsv para la clase BOMInputStream
+		https://stackoverflow.com/questions/56189424/opencsv-csvtobean-first-column-not-read-for-utf-8-without-bom 
+		 -->
+		<dependency>
+	        <groupId>commons-io</groupId>
+	        <artifactId>commons-io</artifactId>
+	        <version>2.11.0</version>
+	    </dependency>
+	    
+	    <!-- Librería Jersey para consumo de Servicios web Rest-->
+	    <dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>1.19</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.19</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			  <artifactId>jersey-multipart</artifactId>
+			 <version>1.19</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			 <artifactId>jersey-core</artifactId>
+			 <version>1.19</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.squareup.okhttp3</groupId>
+		    <artifactId>okhttp</artifactId>
+<!-- 		    <version>3.9.1</version> -->
+		    <version>4.10.0</version>
+		</dependency>
+		
+   </dependencies>
+   
+   <profiles>
+		<profile>
+			<id>local</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<app.profile>local</app.profile>
+
+				<db.url>jdbc:postgresql://10.250.108.53:5432/db_idu_dev</db.url>
+				<db.user>idu_d3v</db.user>
+				<db.password>idu&amp;d3v3l*p..19</db.password>
+				
+				<path.folder.padrones>/Users/raul/Documents/ADIP/Proyectos/Mi Beca Para Empezar/public/</path.folder.padrones>
+				
+				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
+				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>
+				<services.thirdparty.aecdmx.valida.alumno.password></services.thirdparty.aecdmx.valida.alumno.password>
+				
+				<app.params.time-waiting-min>1</app.params.time-waiting-min>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<app.profile>dev</app.profile>
+
+				<db.url>jdbc:postgresql://10.250.109.67:5432/db_mibecaempezar</db.url>
+				<db.user>umibecae</db.user>
+				<db.password>GEqFVu61Gl#Vf69h*GU*</db.password>
+				
+				<path.folder.padrones></path.folder.padrones>
+				
+				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
+				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>
+				<services.thirdparty.aecdmx.valida.alumno.password></services.thirdparty.aecdmx.valida.alumno.password>
+				
+				<app.params.time-waiting-min>10</app.params.time-waiting-min>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>prod</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<app.profile>prod</app.profile>
+
+				<db.url>jdbc:postgresql://10.250.109.83:5432/db_regmibeca</db.url>
+				<db.user>umibeca</db.user>
+				<db.password>w5tdZDl1cp7l9KR3KH8b</db.password>
+				
+				<path.folder.padrones></path.folder.padrones>
+				
+				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
+				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>
+				<services.thirdparty.aecdmx.valida.alumno.password></services.thirdparty.aecdmx.valida.alumno.password>
+				
+				<app.params.time-waiting-min>10</app.params.time-waiting-min>
+			</properties>
+		</profile>
+	</profiles>
+   
+   <build>
+  	
+  	<plugins>
+  		<plugin>  			
+  			<groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-compiler-plugin</artifactId>
+	        <version>3.8.1</version>
+	        <configuration>
+	          <source>${java.version}</source>
+	          <target>${java.version}</target>
+	        </configuration>  		
+  		</plugin>
+  		
+  		<plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-dependency-plugin</artifactId>
+		    <executions>
+		        <execution>
+		            <!-- First (Step 1), we specify the goal copy-dependencies, which tells Maven to copy these dependencies into the specified outputDirectory. 
+		            In our case, we'll create a folder named libs inside the project build directory (which is usually the target folder). -->
+		            <id>copy-dependencies</id>
+		            <phase>prepare-package</phase>
+		            <goals>
+		                <goal>copy-dependencies</goal>
+		            </goals>
+		            <configuration>
+		                <outputDirectory>
+		                    ${project.build.directory}/libs
+		                </outputDirectory>
+		            </configuration>
+		        </execution>
+		    </executions>
+		</plugin>  	
+		
+		<plugin>
+		    <!-- Second, we are going to create executable and classpath-aware jar, with the link to the dependencies copied in the first step.
+		    The most important part of this is the manifest configuration. We add a classpath, with all dependencies (folder libs/), and provide the information about the main class.
+		    dependencies are out of the final jar, which means that our executable jar will only run if the libs folder will be accessible and visible for a jar
+		     -->
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-jar-plugin</artifactId>
+		    <configuration>
+		        <archive>
+		            <manifest>
+		                <addClasspath>true</addClasspath>
+		                <classpathPrefix>libs/</classpathPrefix>
+		                <mainClass>
+		                    mx.gob.cdmx.adip.cargapadrones.init.CargaPadronesInit
+		                </mainClass>
+		            </manifest>
+		        </archive>
+		    </configuration>
+		</plugin>	
+  	</plugins>  	
+  	
+  	
+  	
+    <!-- Se activa el filtrado Maven en la carpeta resources del modulo EJB.
+    	Con lo anterior, Maven sustituira los valores del archivo src/main/resources/META-INF/env.properties con los definidos en este pom.xml -->
+   	<resources>
+   		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
+		</resource>
+	</resources>
+  </build>
+   
+</project>

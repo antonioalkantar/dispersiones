@@ -12,6 +12,8 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.EntidadEducativaSoapClient;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciResponse;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.db.PostgresDatasource;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioSinDispersionDTO;
@@ -61,12 +63,12 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 
 			for (BeneficiarioSolicitudTutorDTO beneficiario : lstBeneficiarios) {
 
-				validaEstatusConexion(conn);
-
 				// Ejecutar WS
+				MciResponse respuesta = EntidadEducativaSoapClient.consultarCurp(beneficiario.getCurpBeneficiario());
 
 				// Validar que el beneficiario está vigente.
-				if (beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
+				if (respuesta.getEstatus().equals("Activo")
+						&& beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
 					// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con
 					// dispersion
 
@@ -102,12 +104,12 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 					beneficiariosSinDispersion.add(beneficiarioSinDispersion);
 				}
 			}
+			
+			validaEstatusConexion(conn);
 
 			prepararBatchConDispersiones(conn, pstmtConDispersion, beneficiariosConDispersion);
 
 			prepararBatchSinDispersiones(conn, pstmtConDispersion, beneficiariosSinDispersion);
-			
-			
 
 			conn.commit();
 			conn.setAutoCommit(true);

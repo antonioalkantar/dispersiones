@@ -36,7 +36,7 @@ public class CatMontoApoyoDAO extends IBaseDAO<CatMontoApoyoDTO, Integer> {
 		strQuery.append("  cma.monto as monto, ");
 		strQuery.append("  cma.estatus as estatus, ");
 		strQuery.append("  cma.fecha_creacion as fechaCreacion ");
-		strQuery.append("FROM cat_monto_apoyo cma ");
+		strQuery.append("FROM mibecaparaempezar.cat_monto_apoyo cma ");
 
 		Connection conn = null;
 		Statement stm = null;

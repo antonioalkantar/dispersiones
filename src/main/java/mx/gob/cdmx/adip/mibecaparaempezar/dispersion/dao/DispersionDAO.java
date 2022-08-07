@@ -1,10 +1,13 @@
 package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -57,7 +60,7 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 		strQuery.append("  d.ruta_archivo_primaria as rutaArchivoPrimaria, ");
 		strQuery.append("  d.ruta_archivo_secundaria as rutaArchivoSecundaria, ");
 		strQuery.append("  d.ruta_archivo_laboral as rutaArchivoLaboral ");
-		strQuery.append("FROM dispersion d ");
+		strQuery.append("FROM mibecaparaempezar.dispersion d ");
 		strQuery.append("WHERE ");
 		strQuery.append("  id_estatus_dispersion = 1 ");
 
@@ -99,8 +102,8 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 
 	public void actualizarEstatus(long idDispersion, long idEstatusDispersion) {
 		StringBuilder strQuery = new StringBuilder();
-		
-		strQuery.append("UPDATE dispersion ");
+
+		strQuery.append("UPDATE mibecaparaempezar.dispersion ");
 		strQuery.append("SET ");
 		strQuery.append("  id_estatus_dispersion = ").append(idEstatusDispersion);
 		strQuery.append(" WHERE ");
@@ -124,11 +127,47 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 			PostgresDatasource.getInstance().close(null, stm, conn);
 		}
 	}
-
-	public void actualizarContadores(DispersionDTO dispersionDTO) {
+	
+	public void actualizarFechaConcluido(long idDispersion, Date fecha) {
 		StringBuilder strQuery = new StringBuilder();
-		strQuery.append(" UPDATE ..... ");
 
+		strQuery.append("UPDATE mibecaparaempezar.dispersion ");
+		strQuery.append("SET ");
+		strQuery.append("  fecha_conclusion = ? ");
+		strQuery.append(" WHERE ");
+		strQuery.append("  id_dispersion = ?");
+
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		try {
+			conn = PostgresDatasource.getInstance().getConnection();
+			pstm = conn.prepareStatement(strQuery.toString());
+			pstm.setTimestamp(1, new Timestamp(fecha.getTime()));
+			pstm.setLong(2, idDispersion);
+			int registrosAfectados = pstm.executeUpdate();
+			if (registrosAfectados < 1) {
+				throw new IllegalArgumentException("El idDispersion " + idDispersion + " no se actualizó su estatus ["
+						+ strQuery.toString() + "]");
+			}
+		} catch (SQLException e1) {
+			LOGGER.error(
+					"Ocurrió un error al actualizar un archivo de padrón con el DML [" + strQuery.toString() + "]:",
+					e1);
+		} finally {
+			PostgresDatasource.getInstance().close(null, pstm, conn);
+		}
+	}
+
+	public void actualizarContadores(DispersionDTO dispersionDTO, double porcentajeDispersados, int dispersados, double porcentajeNoDispersados, int noDispersados) {
+		StringBuilder strQuery = new StringBuilder();
+		strQuery.append("UPDATE mibecaparaempezar.dispersion ");
+		strQuery.append("SET ");
+		strQuery.append("  aplica_dispersion_porcentaje = ").append(porcentajeDispersados).append(",");
+		strQuery.append("  aplica_dispersion_numero = ").append(dispersados).append(",");
+		strQuery.append("  no_aplica_dispersion_porcentaje = ").append(porcentajeNoDispersados).append(",");
+		strQuery.append("  no_aplica_dispersion_numero = ").append(noDispersados);
+		strQuery.append(" WHERE ");
+		strQuery.append("  id_dispersion = ").append(dispersionDTO.getIdDispersion());
 		Connection conn = null;
 		Statement stm = null;
 		try {
@@ -136,15 +175,44 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 			stm = conn.createStatement();
 			int registrosAfectados = stm.executeUpdate(strQuery.toString());
 			if (registrosAfectados < 1) {
-				// throw new IllegalArgumentException("Para el idDispersion
-				// "+dispersionDTO.getIdDispersion()+" no se actualizaron sus contadores
-				// ["+strQuery.toString()+"]");
+				 throw new IllegalArgumentException("Para el idDispersion" + dispersionDTO.getIdDispersion() + " no se actualizaron sus contadores [" + strQuery.toString()+ "]");
 			}
 		} catch (SQLException e1) {
 			LOGGER.error("Ocurrió un error al actualizar los contadores de una dispersión con el DML ["
 					+ strQuery.toString() + "]:", e1);
 		} finally {
 			PostgresDatasource.getInstance().close(null, stm, conn);
+		}
+	}
+	
+	public void actualizarArchivos(DispersionDTO dispersionDTO, String reportePreescolar, String reportePrimaria, String reporteSecundaria, String reporteLaboral) {
+		StringBuilder strQuery = new StringBuilder();
+		strQuery.append("UPDATE mibecaparaempezar.dispersion ");
+		strQuery.append("SET ");
+		strQuery.append("  ruta_archivo_preescolar = ?,");
+		strQuery.append("  ruta_archivo_primaria = ?,");
+		strQuery.append("  ruta_archivo_secundaria = ?,");
+		strQuery.append("  ruta_archivo_laboral = ? ");
+		strQuery.append(" WHERE ");
+		strQuery.append("  id_dispersion = ? ");
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		try {
+			conn = PostgresDatasource.getInstance().getConnection();
+			pstm = conn.prepareStatement(strQuery.toString());
+			pstm.setString(1, reportePreescolar);
+			pstm.setString(2, reportePrimaria);
+			pstm.setString(3, reporteSecundaria);
+			pstm.setString(4, reporteLaboral);
+			pstm.setLong(5, dispersionDTO.getIdDispersion());
+			int registrosAfectados = pstm.executeUpdate();
+			if (registrosAfectados < 1) {
+				 throw new IllegalArgumentException("Para el idDispersion" + dispersionDTO.getIdDispersion() + " no se actualizaron nombres de los archivos correctamente.");
+			}
+		} catch (SQLException e1) {
+			LOGGER.error("Ocurrió un error al actualizar los nombres de los archivo de la dispersión: " + dispersionDTO.getIdDispersion().toString(), e1);
+		} finally {
+			PostgresDatasource.getInstance().close(null, pstm, conn);
 		}
 	}
 

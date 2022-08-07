@@ -10,8 +10,8 @@ public class ResultadoEjecucionDTO implements Serializable{
 	private static final long serialVersionUID = 1071443940818972923L;
 	
 	private int totalRegistros;
-	private int totalCorrectos;
-	private int totalIncorrectos;
+	private int totalDispersados;
+	private int totalNoDispersados;
 	
 	public int getTotalRegistros() {
 		return totalRegistros;
@@ -19,16 +19,16 @@ public class ResultadoEjecucionDTO implements Serializable{
 	public void setTotalRegistros(int totalRegistros) {
 		this.totalRegistros = totalRegistros;
 	}
-	public int getTotalCorrectos() {
-		return totalCorrectos;
+	public int getTotalDispersados() {
+		return totalDispersados;
 	}
-	public void setTotalCorrectos(int totalCorrectos) {
-		this.totalCorrectos = totalCorrectos;
+	public void setTotalDispersados(int totalDispersados) {
+		this.totalDispersados = totalDispersados;
 	}
-	public int getTotalIncorrectos() {
-		return totalIncorrectos;
+	public int getTotalNoDispersados() {
+		return totalNoDispersados;
 	}
-	public void setTotalIncorrectos(int totalIncorrectos) {
-		this.totalIncorrectos = totalIncorrectos;
+	public void setTotalNoDispersados(int totalNoDispersados) {
+		this.totalNoDispersados = totalNoDispersados;
 	}
 }

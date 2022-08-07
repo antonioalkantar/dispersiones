@@ -57,7 +57,7 @@ public class DispersionesInit {
 			verificaRecursos();
 			
 			ValidaBeneficiarios validaBeneficiarios = new ValidaBeneficiarios();
-			//validaBeneficiarios.validar();
+			validaBeneficiarios.validar();
 			
 			PostgresDatasource.getInstance().printDataSourceStats();
 		} catch (SQLException e) {

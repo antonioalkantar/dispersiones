@@ -124,12 +124,11 @@
 			<properties>
 				<app.profile>local</app.profile>
 
-				<db.url>jdbc:postgresql://localhost:5432/mibecaparaempezar</db.url>
-				<db.user>root</db.user>
-				<db.password>sasa</db.password>
+				<db.url>jdbc:postgresql://localhost:5432/postgres</db.url>
+				<db.user>postgres</db.user>
+				<db.password>root</db.password>
 
-				<path.folder.padrones>/Users/raul/Documents/ADIP/Proyectos/Mi Beca
-					Para Empezar/public/</path.folder.padrones>
+				<path.folder.padrones>C:\becas\</path.folder.padrones>
 
 				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
 				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>
@@ -137,7 +136,7 @@
 
 				<app.params.time-waiting-min>1</app.params.time-waiting-min>
 				
-					<service.aefcm.user>mci_fidegar_adip</service.aefcm.user>
+				<service.aefcm.user>mci_fidegar_adip</service.aefcm.user>
 				<service.aefcm.password>3AL7R0LD39UO</service.aefcm.password>
 			</properties>
 		</profile>

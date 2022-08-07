@@ -1,7 +1,9 @@
 package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -12,8 +14,11 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.CsvToBeanFilter;
+
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.environment.Environment;
 
 public class CsvUtils {
 	
@@ -65,5 +70,32 @@ public class CsvUtils {
 	    }
 
 	 }
+	
+	public static void addDataToCSV(String path, List<String[]> lst)
+    {
+        File file = new File(path);
+        try {
+            FileWriter outputfile = new FileWriter(file);
+  
+            CSVWriter writer = new CSVWriter(outputfile, 
+            								 CSVWriter.DEFAULT_SEPARATOR,
+                                             CSVWriter.NO_QUOTE_CHARACTER,
+                                             CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                                             CSVWriter.DEFAULT_LINE_END);
+            writer.writeAll(lst);
+            writer.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+	
+//	public static void main(String[] args) {
+//		List<String[]> data = new ArrayList<String[]>();
+//		data.add(new String[] { "Curp Tutor", "Número Cuenta", "Monto" });
+//        data.add(new String[] { "AAVA920224HDFLLN03", "103847568", "620" });
+//        data.add(new String[] { "AAVA920224HDFLLN03", "123489500", "630" });
+//		addDataToCSV(Environment.getPathFolderPadrones() + "ejemplo.csv", data);
+//	}
 
 }

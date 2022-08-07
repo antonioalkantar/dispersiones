@@ -2,18 +2,25 @@ package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto;
 
 import java.util.Date;
 
+import com.opencsv.bean.CsvBindByName;
+
 public class BeneficiarioDispersionDTO {
 
 	private Long idBeneficiarioDispersion;
 	private DispersionDTO dispersion;
+	@CsvBindByName(column = "curpBeneficiario")
 	private String curpBeneficiario;
+	private String curpTutor;
 	private CatCicloEscolarDTO catCicloEscolar;
 	private CatPeriodoEscolarDTO catPeriodoEscolar;
 	private CatNivelEducativoDTO catNiveEducativo;
+	@CsvBindByName(column = "montoApoyo")
 	private CatMontoApoyoDTO catMontoApoyo;
 	private Date fechaCreacion;
 	private Boolean esComplementaria;
 	private Long idBeneficiarioSinDispersion;
+	@CsvBindByName(column = "numeroCuenta")
+	private String numeroCuenta;
 
 	public BeneficiarioDispersionDTO() {
 		catCicloEscolar = new CatCicloEscolarDTO();
@@ -114,6 +121,22 @@ public class BeneficiarioDispersionDTO {
 
 	public void setIdBeneficiarioSinDispersion(Long idBeneficiarioSinDispersion) {
 		this.idBeneficiarioSinDispersion = idBeneficiarioSinDispersion;
+	}
+
+	public String getNumeroCuenta() {
+		return numeroCuenta;
+	}
+
+	public void setNumeroCuenta(String numeroCuenta) {
+		this.numeroCuenta = numeroCuenta;
+	}
+
+	public String getCurpTutor() {
+		return curpTutor;
+	}
+
+	public void setCurpTutor(String curpTutor) {
+		this.curpTutor = curpTutor;
 	}
 	
 }

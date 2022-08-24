@@ -131,5 +131,9 @@ public final class Constantes {
 	public static final String DESC_OTRO = "OTRO";
 
 	public static final String LADA_NACIONAL = "52";
+	
+	//MOTIVOS NO DISPERSION
+	public static final long TUTOR_NO_APROBADO = 1;
+	public static final long BENEFICIARIO_NO_ACTIVO = 2;
 
 }

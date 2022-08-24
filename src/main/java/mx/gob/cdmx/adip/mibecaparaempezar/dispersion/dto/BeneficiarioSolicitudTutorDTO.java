@@ -10,6 +10,7 @@ public class BeneficiarioSolicitudTutorDTO {
 	private Long idGradoEscolar;
 	private Long idBeneficiario;
 	private String curpBeneficiario;
+	private Long idBeneficiarioSinDispersion;
 
 	public Long getIdUsuario() {
 		return idUsuario;
@@ -74,4 +75,13 @@ public class BeneficiarioSolicitudTutorDTO {
 	public void setIdEstatusTutor(Long idEstatusTutor) {
 		this.idEstatusTutor = idEstatusTutor;
 	}
+
+	public Long getIdBeneficiarioSinDispersion() {
+		return idBeneficiarioSinDispersion;
+	}
+
+	public void setIdBeneficiarioSinDispersion(Long idBeneficiarioSinDispersion) {
+		this.idBeneficiarioSinDispersion = idBeneficiarioSinDispersion;
+	}
+	
 }

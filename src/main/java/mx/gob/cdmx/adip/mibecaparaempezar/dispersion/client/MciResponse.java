@@ -16,12 +16,22 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="estatus" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="cicloEscolarId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="cicloEscolar" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="servicioEducativoId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="servicioEducativo" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="nivelEducativoId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="nivelEducativo" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="cct" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="turnoId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="turno" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="gradoEscolar" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
  *         &lt;element name="tipoEscuela" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="estatus" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="nombres" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="primerApellido" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="segundoApellido" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="cct" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="nombreCCT" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="calle" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="numeroExterior" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
@@ -29,9 +39,6 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="alcaldiaId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="alcaldia" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="codigoPostal" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="turno" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="nivelEducativo" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="gradoEscolar" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -42,31 +49,48 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MciResponse", propOrder = {
-    "estatus",
+    "cicloEscolarId",
+    "cicloEscolar",
+    "servicioEducativoId",
+    "servicioEducativo",
+    "nivelEducativoId",
+    "nivelEducativo",
+    "cct",
+    "turnoId",
+    "turno",
+    "gradoEscolar",
     "tipoEscuela",
+    "estatus",
+    "curp",
     "nombres",
     "primerApellido",
     "segundoApellido",
-    "cct",
     "nombreCCT",
     "calle",
     "numeroExterior",
     "colonia",
     "alcaldiaId",
     "alcaldia",
-    "codigoPostal",
-    "turno",
-    "nivelEducativo",
-    "gradoEscolar"
+    "codigoPostal"
 })
 public class MciResponse {
 
-    protected String estatus;
+    protected int cicloEscolarId;
+    protected String cicloEscolar;
+    protected int servicioEducativoId;
+    protected String servicioEducativo;
+    protected int nivelEducativoId;
+    protected String nivelEducativo;
+    protected String cct;
+    protected int turnoId;
+    protected String turno;
+    protected int gradoEscolar;
     protected String tipoEscuela;
+    protected String estatus;
+    protected String curp;
     protected String nombres;
     protected String primerApellido;
     protected String segundoApellido;
-    protected String cct;
     protected String nombreCCT;
     protected String calle;
     protected String numeroExterior;
@@ -74,9 +98,230 @@ public class MciResponse {
     protected String alcaldiaId;
     protected String alcaldia;
     protected String codigoPostal;
-    protected String turno;
-    protected String nivelEducativo;
-    protected int gradoEscolar;
+
+    /**
+     * Obtiene el valor de la propiedad cicloEscolarId.
+     * 
+     */
+    public int getCicloEscolarId() {
+        return cicloEscolarId;
+    }
+
+    /**
+     * Define el valor de la propiedad cicloEscolarId.
+     * 
+     */
+    public void setCicloEscolarId(int value) {
+        this.cicloEscolarId = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad cicloEscolar.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCicloEscolar() {
+        return cicloEscolar;
+    }
+
+    /**
+     * Define el valor de la propiedad cicloEscolar.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCicloEscolar(String value) {
+        this.cicloEscolar = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad servicioEducativoId.
+     * 
+     */
+    public int getServicioEducativoId() {
+        return servicioEducativoId;
+    }
+
+    /**
+     * Define el valor de la propiedad servicioEducativoId.
+     * 
+     */
+    public void setServicioEducativoId(int value) {
+        this.servicioEducativoId = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad servicioEducativo.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getServicioEducativo() {
+        return servicioEducativo;
+    }
+
+    /**
+     * Define el valor de la propiedad servicioEducativo.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setServicioEducativo(String value) {
+        this.servicioEducativo = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad nivelEducativoId.
+     * 
+     */
+    public int getNivelEducativoId() {
+        return nivelEducativoId;
+    }
+
+    /**
+     * Define el valor de la propiedad nivelEducativoId.
+     * 
+     */
+    public void setNivelEducativoId(int value) {
+        this.nivelEducativoId = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad nivelEducativo.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNivelEducativo() {
+        return nivelEducativo;
+    }
+
+    /**
+     * Define el valor de la propiedad nivelEducativo.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNivelEducativo(String value) {
+        this.nivelEducativo = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad cct.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCct() {
+        return cct;
+    }
+
+    /**
+     * Define el valor de la propiedad cct.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCct(String value) {
+        this.cct = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad turnoId.
+     * 
+     */
+    public int getTurnoId() {
+        return turnoId;
+    }
+
+    /**
+     * Define el valor de la propiedad turnoId.
+     * 
+     */
+    public void setTurnoId(int value) {
+        this.turnoId = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad turno.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getTurno() {
+        return turno;
+    }
+
+    /**
+     * Define el valor de la propiedad turno.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setTurno(String value) {
+        this.turno = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad gradoEscolar.
+     * 
+     */
+    public int getGradoEscolar() {
+        return gradoEscolar;
+    }
+
+    /**
+     * Define el valor de la propiedad gradoEscolar.
+     * 
+     */
+    public void setGradoEscolar(int value) {
+        this.gradoEscolar = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad tipoEscuela.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getTipoEscuela() {
+        return tipoEscuela;
+    }
+
+    /**
+     * Define el valor de la propiedad tipoEscuela.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setTipoEscuela(String value) {
+        this.tipoEscuela = value;
+    }
 
     /**
      * Obtiene el valor de la propiedad estatus.
@@ -103,27 +348,27 @@ public class MciResponse {
     }
 
     /**
-     * Obtiene el valor de la propiedad tipoEscuela.
+     * Obtiene el valor de la propiedad curp.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getTipoEscuela() {
-        return tipoEscuela;
+    public String getCurp() {
+        return curp;
     }
 
     /**
-     * Define el valor de la propiedad tipoEscuela.
+     * Define el valor de la propiedad curp.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setTipoEscuela(String value) {
-        this.tipoEscuela = value;
+    public void setCurp(String value) {
+        this.curp = value;
     }
 
     /**
@@ -196,30 +441,6 @@ public class MciResponse {
      */
     public void setSegundoApellido(String value) {
         this.segundoApellido = value;
-    }
-
-    /**
-     * Obtiene el valor de la propiedad cct.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCct() {
-        return cct;
-    }
-
-    /**
-     * Define el valor de la propiedad cct.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCct(String value) {
-        this.cct = value;
     }
 
     /**
@@ -388,70 +609,6 @@ public class MciResponse {
      */
     public void setCodigoPostal(String value) {
         this.codigoPostal = value;
-    }
-
-    /**
-     * Obtiene el valor de la propiedad turno.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTurno() {
-        return turno;
-    }
-
-    /**
-     * Define el valor de la propiedad turno.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTurno(String value) {
-        this.turno = value;
-    }
-
-    /**
-     * Obtiene el valor de la propiedad nivelEducativo.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getNivelEducativo() {
-        return nivelEducativo;
-    }
-
-    /**
-     * Define el valor de la propiedad nivelEducativo.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setNivelEducativo(String value) {
-        this.nivelEducativo = value;
-    }
-
-    /**
-     * Obtiene el valor de la propiedad gradoEscolar.
-     * 
-     */
-    public int getGradoEscolar() {
-        return gradoEscolar;
-    }
-
-    /**
-     * Define el valor de la propiedad gradoEscolar.
-     * 
-     */
-    public void setGradoEscolar(int value) {
-        this.gradoEscolar = value;
     }
 
 }

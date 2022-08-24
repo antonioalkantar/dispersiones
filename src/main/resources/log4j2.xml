@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO" packages="mx.gob.cdmx.adip.cargapadrones.log4j.telegram, org.apache.logging.log4j.core.appender">
+<Configuration status="INFO" packages="org.apache.logging.log4j.core.appender">
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
             <!-- Doc de Pattern: https://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout -->

@@ -74,8 +74,13 @@ public class CsvUtils {
 	public static void addDataToCSV(String path, List<String[]> lst)
     {
         File file = new File(path);
+        FileWriter outputfile = null;
         try {
-            FileWriter outputfile = new FileWriter(file);
+        	if (file.exists()) {
+        		outputfile = new FileWriter(file, true);
+        	} else {
+        		outputfile = new FileWriter(file);
+        	}
   
             CSVWriter writer = new CSVWriter(outputfile, 
             								 CSVWriter.DEFAULT_SEPARATOR,
@@ -89,13 +94,5 @@ public class CsvUtils {
             e.printStackTrace();
         }
     }
-	
-//	public static void main(String[] args) {
-//		List<String[]> data = new ArrayList<String[]>();
-//		data.add(new String[] { "Curp Tutor", "Número Cuenta", "Monto" });
-//        data.add(new String[] { "AAVA920224HDFLLN03", "103847568", "620" });
-//        data.add(new String[] { "AAVA920224HDFLLN03", "123489500", "630" });
-//		addDataToCSV(Environment.getPathFolderPadrones() + "ejemplo.csv", data);
-//	}
 
 }

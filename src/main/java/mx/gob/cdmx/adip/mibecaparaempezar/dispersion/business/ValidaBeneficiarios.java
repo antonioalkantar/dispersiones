@@ -77,25 +77,39 @@ public class ValidaBeneficiarios {
 				// 2. Se actualiza el estatus a procesando
 				dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(),
 						Constantes.ID_ESTATUS_DISPERSION_PROCESANDO);
-
+				
 				// 3. Se obtienen los registros de beneficiarios
-				List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios = beneficiarioDAO.buscarBeneficiariosActivos();
-				LOGGER.info("Total Registros a procesar:" + lstBeneficiarios.size());
+				List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios = null;
+				
+				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+					// 3.1 Se obtiene la ultima dispersion para procesar sus beneficiarios no dispersados
+					DispersionDTO ultimaDispersion = dispersionDAO.obtenerUltimaDispersionPorFechaConclusion(dispersionDTO);
+					// 3.2 Se obtienen los registros de beneficiarios
+					lstBeneficiarios = beneficiarioDAO.buscarBeneficiariosActivosComplementaria(ultimaDispersion.getIdDispersion());
+					LOGGER.info("Total Registros a procesar:" + lstBeneficiarios.size());
+				} else {
+					// 3.2 Se obtienen los registros de beneficiarios
+					lstBeneficiarios = beneficiarioDAO.buscarBeneficiariosActivos();
+					// 3.3 Se obtiene la ultima dispersion para procesar sus beneficiarios no dispersados
+					DispersionDTO ultimaDispersion = dispersionDAO.obtenerUltimaDispersionPorFechaConclusion(dispersionDTO);
+					if(ultimaDispersion != null) {
+						// 3.4 Se obtienen los registros de beneficiarios
+						lstBeneficiarios.addAll(beneficiarioDAO.buscarBeneficiariosActivosComplementaria(ultimaDispersion.getIdDispersion()));
+					}
+					LOGGER.info("Total Registros a procesar:" + lstBeneficiarios.size());
+				}
 
 				ContadorProgresoSynchronized.reset();
 				ContadorProgresoSynchronized.setMeta(lstBeneficiarios.size());
 
 				// 4. Se divide la carga del archivos en hilos de ejecución (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
-				List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiarios = dividirCarga(dispersionDTO,
-						lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO,
-						dispersionDAO);
+				List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiarios = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO);
 				LOGGER.info("Se prepararon " + lstHilosBeneficiarios.size() + " hilos de ejecución.");
 
 				// 5. Se invocan los diversos hilos de ejecución para realizar los inserts de
 				// manera paralela
-				LOGGER.info(
-						"Procesadores disponibles para multithreading: " + Runtime.getRuntime().availableProcessors());
+				LOGGER.info("Procesadores disponibles para multithreading: " + Runtime.getRuntime().availableProcessors());
 				LOGGER.info("Invocando hilos de ejecución...");
 				executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 				List<Future<ResultadoEjecucionDTO>> lstFuturosResultados = executor.invokeAll(lstHilosBeneficiarios);
@@ -128,10 +142,16 @@ public class ValidaBeneficiarios {
 
 				// 8. Se actualiza el estatus de la dispersion a Concluido y se coloca la fechaConclusion del proceso
 				dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(), Constantes.ID_ESTATUS_DISPERSION_CONCLUIDO);
+				
+				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+				// 9. Se actualiza la bandera para solo mostrar icono de ejecutar validacion al ultimo registro
+					dispersionDAO.actualizarPermiteEjecucion(dispersionDTO);
+				}
+				// 10. Se actualiza la fecha Concluido del proceso
 				dispersionDAO.actualizarFechaConcluido(dispersionDTO.getIdDispersion(), new Date());
 			} catch (Exception e) {
 				LOGGER.error("Ocurrió un error al procesar la dispersión con ID:" + dispersionDTO.getIdDispersion() + ":", e);
-				// 9. En caso de algún error en el archivo, se cambia su estatus a "Error"
+				// En caso de algún error en el archivo, se cambia su estatus a "Error"
 				// dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(),
 				// CatEstatusDispersionDTO.ID_ESTATUS_DISPERSION_ERROR);
 			} finally {

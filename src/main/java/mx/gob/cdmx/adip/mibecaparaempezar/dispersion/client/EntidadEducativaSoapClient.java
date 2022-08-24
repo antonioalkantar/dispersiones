@@ -12,9 +12,12 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciRequest;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciResponse;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciWS;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciWSService;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.UTPasswordCallback;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.environment.Environment;
-
-
 
 /**
  * @author raul
@@ -93,7 +96,7 @@ public class EntidadEducativaSoapClient {
 	}
 
 	public static void main(String[] args) throws IOException {
-		MciResponse mciEntidadEducativaResponse = EntidadEducativaSoapClient.consultarCurp("METH131125MPLNRNA0");
+		MciResponse mciEntidadEducativaResponse = EntidadEducativaSoapClient.consultarCurp("AAAA120505HDFLRNA7");
 		System.out.println(mciEntidadEducativaResponse.getEstatus());
 		System.out.println(mciEntidadEducativaResponse.getTipoEscuela());
 		
@@ -109,6 +112,7 @@ public class EntidadEducativaSoapClient {
 		System.out.println(mciEntidadEducativaResponse.getNumeroExterior());
 		
 		System.out.println(mciEntidadEducativaResponse.getCct());
+		System.out.println(mciEntidadEducativaResponse.getCicloEscolar());
 	}
 
 }

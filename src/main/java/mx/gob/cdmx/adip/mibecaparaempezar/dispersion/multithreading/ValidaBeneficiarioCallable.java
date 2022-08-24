@@ -74,13 +74,6 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		mapaReportesNivelAcademicoConDispersion.put("secundaria", new ArrayList<>());
 		mapaReportesNivelAcademicoConDispersion.put("laboral", new ArrayList<>());
 
-		// Lista para reportes CSV sin Dispersion
-		Map<String, List<BeneficiarioSinDispersionDTO>> mapaReportesNivelAcademicoSinDispersion = new HashMap<>();
-		mapaReportesNivelAcademicoSinDispersion.put("preescolar", new ArrayList<>());
-		mapaReportesNivelAcademicoSinDispersion.put("primaria", new ArrayList<>());
-		mapaReportesNivelAcademicoSinDispersion.put("secundaria", new ArrayList<>());
-		mapaReportesNivelAcademicoSinDispersion.put("laboral", new ArrayList<>());
-
 		try {
 			conn = PostgresDatasource.getInstance().getConnection();
 			conn.setAutoCommit(false);
@@ -96,25 +89,27 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 				MciResponse respuesta = EntidadEducativaSoapClient.consultarCurp(beneficiario.getCurpBeneficiario());
 
 				// Validar que el beneficiario está vigente.
-				if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-						&& beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
-					// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con
-					// dispersion
-
+				if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
+					// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con dispersion
 					BeneficiarioDispersionDTO beneficiarioDispersion = new BeneficiarioDispersionDTO();
 					beneficiarioDispersion.setDispersion(dispersion); // Dispersion
 					beneficiarioDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
 					beneficiarioDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
 					beneficiarioDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
 					beneficiarioDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
-					beneficiarioDispersion.setCatNiveEducativo(
-							new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-					beneficiarioDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(),
-							dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
+					beneficiarioDispersion.setCatNiveEducativo(new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+					beneficiarioDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(), dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
 					beneficiarioDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-					beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
+					if(dispersion.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+						beneficiarioDispersion.setEsComplementaria(true); // Es complementaria
+					} else {
+						beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
+					}
 					beneficiarioDispersion.setIdBeneficiarioSinDispersion(null); // Beneficiario Sin Dispersion
 					beneficiarioDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
+					if(dispersion.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+						beneficiarioDispersion.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
+					}
 
 					beneficiariosConDispersion.add(beneficiarioDispersion);
 					asignarListaReportesDispersion(beneficiarioDispersion, mapaReportesNivelAcademicoConDispersion);
@@ -126,12 +121,13 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 					beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
 					beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
 					beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-					beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo
-																										// Escolar
-					beneficiarioSinDispersion.setCatNiveEducativo(
-							new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-					beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(1l));// Motivo No
-																											// Dispersion
+					beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
+					beneficiarioSinDispersion.setCatNiveEducativo(new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+					if(respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
+						beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO));// Motivo No Dispersion
+					} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
+						beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO));// Motivo No Dispersion
+					}
 					beneficiarioSinDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(),
 							dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
 					beneficiarioSinDispersion.setFechaCreacion(new Date()); // Fecha Creacion
@@ -139,7 +135,6 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 					beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
 
 					beneficiariosSinDispersion.add(beneficiarioSinDispersion);
-					asignarListaReportesSinDispersion(beneficiarioSinDispersion, mapaReportesNivelAcademicoSinDispersion);
 				}
 			}
 
@@ -192,24 +187,20 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		case Constantes.ID_CAM_LABORAL:
 			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
 			break;
-		default:
+		case Constantes.ID_PRIMARIA_ADULTOS:
+			mapaReportesNivelAcademicoConDispersion.get("primaria").add(beneficiarioDispersion);
 			break;
-		}
-	}
-	
-	private void asignarListaReportesSinDispersion(BeneficiarioSinDispersionDTO beneficiarioSinDispersion, Map<String, List<BeneficiarioSinDispersionDTO>> mapaReportesNivelAcademicoSinDispersion) {
-		switch (beneficiarioSinDispersion.getCatNiveEducativo().getIdNivel()) {
-		case Constantes.ID_PREESCOLAR:
-			mapaReportesNivelAcademicoSinDispersion.get("preescolar").add(beneficiarioSinDispersion);
+		case Constantes.ID_SECUNDARIA_ADULTOS:
+			mapaReportesNivelAcademicoConDispersion.get("secundaria").add(beneficiarioDispersion);
 			break;
-		case Constantes.ID_PRIMARIA:
-			mapaReportesNivelAcademicoSinDispersion.get("primaria").add(beneficiarioSinDispersion);
+		case Constantes.ID_CAM_PREESCOLAR:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
 			break;
-		case Constantes.ID_SECUNDARIA:
-			mapaReportesNivelAcademicoSinDispersion.get("secundaria").add(beneficiarioSinDispersion);
+		case Constantes.ID_CAM_PRIMARIA:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
 			break;
-		case Constantes.ID_CAM_LABORAL:
-			mapaReportesNivelAcademicoSinDispersion.get("laboral").add(beneficiarioSinDispersion);
+		case Constantes.ID_CAM_SECUNDARIA:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
 			break;
 		default:
 			break;
@@ -240,16 +231,16 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		return datosReporte;
 	}
 	
-	private void crearReportesCSV(DispersionDTO dispersion, Map<String, List<BeneficiarioDispersionDTO>> mapaReportesNivelAcademicoConDispersion) {
+	private synchronized void crearReportesCSV(DispersionDTO dispersion, Map<String, List<BeneficiarioDispersionDTO>> mapaReportesNivelAcademicoConDispersion) {
 		List<String[]> reporteDispersionPreescolar = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("preescolar"));
 		List<String[]> reporteDispersionPrimaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("primaria"));
 		List<String[]> reporteDispersionSecundaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("secundaria"));
 		List<String[]> reporteDispersionLaboral = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("laboral"));
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + "reporte_preescolar.csv", reporteDispersionPreescolar);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + "reporte_primaria.csv", reporteDispersionPrimaria);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + "reporte_secundaria.csv", reporteDispersionSecundaria);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + "reporte_laboral.csv", reporteDispersionLaboral);
-		dispersionDAO.actualizarArchivos(dispersion, "reporte_preescolar.csv", "reporte_primaria.csv", "reporte_secundaria.csv", "reporte_laboral.csv");
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_preescolar.csv", reporteDispersionPreescolar);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_primaria.csv", reporteDispersionPrimaria);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_secundaria.csv", reporteDispersionSecundaria);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_laboral.csv", reporteDispersionLaboral);
+		dispersionDAO.actualizarArchivos(dispersion, dispersion.getIdDispersion() + "_reporte_preescolar.csv", dispersion.getIdDispersion() + "_reporte_primaria.csv", dispersion.getIdDispersion() + "_reporte_secundaria.csv", dispersion.getIdDispersion() + "_reporte_laboral.csv");
 	}
 
 }

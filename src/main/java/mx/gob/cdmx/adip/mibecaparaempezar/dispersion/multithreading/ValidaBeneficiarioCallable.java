@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,9 +24,7 @@ import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatMotivoNoDispersionDT
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatNivelEducativoDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.DispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.ResultadoEjecucionDTO;
-import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.environment.Environment;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util.Constantes;
-import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util.CsvUtils;
 
 /**
  * @author raul
@@ -67,13 +63,6 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		List<BeneficiarioDispersionDTO> beneficiariosConDispersion = new ArrayList<>();
 		List<BeneficiarioSinDispersionDTO> beneficiariosSinDispersion = new ArrayList<>();
 
-		// Lista para reportes CSV con Dispersion
-		Map<String, List<BeneficiarioDispersionDTO>> mapaReportesNivelAcademicoConDispersion = new HashMap<>();
-		mapaReportesNivelAcademicoConDispersion.put("preescolar", new ArrayList<>());
-		mapaReportesNivelAcademicoConDispersion.put("primaria", new ArrayList<>());
-		mapaReportesNivelAcademicoConDispersion.put("secundaria", new ArrayList<>());
-		mapaReportesNivelAcademicoConDispersion.put("laboral", new ArrayList<>());
-
 		try {
 			conn = PostgresDatasource.getInstance().getConnection();
 			conn.setAutoCommit(false);
@@ -89,44 +78,59 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 				MciResponse respuesta = EntidadEducativaSoapClient.consultarCurp(beneficiario.getCurpBeneficiario());
 
 				// Validar que el beneficiario está vigente.
-				if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
-					// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con dispersion
+				if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
+						&& beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
+					// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con
+					// dispersion
 					BeneficiarioDispersionDTO beneficiarioDispersion = new BeneficiarioDispersionDTO();
 					beneficiarioDispersion.setDispersion(dispersion); // Dispersion
 					beneficiarioDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
 					beneficiarioDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
 					beneficiarioDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
 					beneficiarioDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
-					beneficiarioDispersion.setCatNiveEducativo(new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-					beneficiarioDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(), dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
+					beneficiarioDispersion.setCatNiveEducativo(
+							new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+					beneficiarioDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(),
+							dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
 					beneficiarioDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-					if(dispersion.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+					if (dispersion.getCatTipoDispersion()
+							.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
 						beneficiarioDispersion.setEsComplementaria(true); // Es complementaria
 					} else {
 						beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
 					}
 					beneficiarioDispersion.setIdBeneficiarioSinDispersion(null); // Beneficiario Sin Dispersion
 					beneficiarioDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
-					if(dispersion.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-						beneficiarioDispersion.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
+					if (dispersion.getCatTipoDispersion()
+							.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+						beneficiarioDispersion
+								.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
 					}
 
 					beneficiariosConDispersion.add(beneficiarioDispersion);
-					asignarListaReportesDispersion(beneficiarioDispersion, mapaReportesNivelAcademicoConDispersion);
 
 				} else {
 					// Si no esta vigente, se pasa a la lista de beneficiarios sin dispersion
 					BeneficiarioSinDispersionDTO beneficiarioSinDispersion = new BeneficiarioSinDispersionDTO();
 					beneficiarioSinDispersion.setDispersion(dispersion); // Dispersion
-					beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
+					beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP
+																										// Beneficiario
 					beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
 					beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-					beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
-					beneficiarioSinDispersion.setCatNiveEducativo(new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-					if(respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-						beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO));// Motivo No Dispersion
-					} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO) && beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-						beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO));// Motivo No Dispersion
+					beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo
+																										// Escolar
+					beneficiarioSinDispersion.setCatNiveEducativo(
+							new CatNivelEducativoDTO(beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+					if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
+							&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
+						beneficiarioSinDispersion
+								.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO));// Motivo
+																														// No
+																														// Dispersion
+					} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
+							&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
+						beneficiarioSinDispersion.setCatMotivoNoDispersion(
+								new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO));// Motivo No Dispersion
 					}
 					beneficiarioSinDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiario.getIdNivelEducativo(),
 							dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
@@ -155,10 +159,6 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 			LOGGER.info("El hilo " + Thread.currentThread().getName() + " terminó la ejecución de "
 					+ lstBeneficiarios.size() + " registros Dispersados:" + resultadosConDispersion.length
 					+ ", No Dispersados: " + resultadosSinDispersion.length);
-
-			// Generamos los CSV
-			crearReportesCSV(dispersion, mapaReportesNivelAcademicoConDispersion);
-			
 		} catch (Exception e) {
 			LOGGER.error("Ocurrió un error en la ejecución del Thread:", e);
 		} finally {
@@ -173,46 +173,10 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		return resultadoEjecucionDTO;
 	}
 
-	private void asignarListaReportesDispersion(BeneficiarioDispersionDTO beneficiarioDispersion, Map<String, List<BeneficiarioDispersionDTO>> mapaReportesNivelAcademicoConDispersion) {
-		switch (beneficiarioDispersion.getCatNiveEducativo().getIdNivel()) {
-		case Constantes.ID_PREESCOLAR:
-			mapaReportesNivelAcademicoConDispersion.get("preescolar").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_PRIMARIA:
-			mapaReportesNivelAcademicoConDispersion.get("primaria").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_SECUNDARIA:
-			mapaReportesNivelAcademicoConDispersion.get("secundaria").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_CAM_LABORAL:
-			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_PRIMARIA_ADULTOS:
-			mapaReportesNivelAcademicoConDispersion.get("primaria").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_SECUNDARIA_ADULTOS:
-			mapaReportesNivelAcademicoConDispersion.get("secundaria").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_CAM_PREESCOLAR:
-			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_CAM_PRIMARIA:
-			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
-			break;
-		case Constantes.ID_CAM_SECUNDARIA:
-			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
-			break;
-		default:
-			break;
-		}
-	}
-
 	private void validaEstatusConexion(Connection conn) throws SQLException {
 		if (conn.isClosed()) {
-			// miDAO.closeResources();
 			LOGGER.warn("Se dectectó conexión cerrada. Se renueva la conexión");
 			conn = PostgresDatasource.getInstance().getConnection();
-			// miDAO = new MiDAO(conn);
 		}
 	}
 
@@ -221,26 +185,6 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 				.filter(cat -> cat.getCatNivelEducativoDTO().getIdNivel().intValue() == idNivelEducativo
 						&& cat.getCatCicloEscolarDTO().getIdCicloEscolar() == idCicloEscolar)
 				.findFirst().get();
-	}
-	
-	private List<String[]> mapearDispersion(List<BeneficiarioDispersionDTO> lstBeneficiariosConDispersion) {
-		List<String[]> datosReporte = new ArrayList<String[]>();
-		for (BeneficiarioDispersionDTO sinDispersion : lstBeneficiariosConDispersion) {
-			datosReporte.add(new String[] { sinDispersion.getCurpTutor(), sinDispersion.getNumeroCuenta(), sinDispersion.getCatMontoApoyo().getMonto().toString() });
-		}
-		return datosReporte;
-	}
-	
-	private synchronized void crearReportesCSV(DispersionDTO dispersion, Map<String, List<BeneficiarioDispersionDTO>> mapaReportesNivelAcademicoConDispersion) {
-		List<String[]> reporteDispersionPreescolar = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("preescolar"));
-		List<String[]> reporteDispersionPrimaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("primaria"));
-		List<String[]> reporteDispersionSecundaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("secundaria"));
-		List<String[]> reporteDispersionLaboral = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("laboral"));
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_preescolar.csv", reporteDispersionPreescolar);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_primaria.csv", reporteDispersionPrimaria);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_secundaria.csv", reporteDispersionSecundaria);
-		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_laboral.csv", reporteDispersionLaboral);
-		dispersionDAO.actualizarArchivos(dispersion, dispersion.getIdDispersion() + "_reporte_preescolar.csv", dispersion.getIdDispersion() + "_reporte_primaria.csv", dispersion.getIdDispersion() + "_reporte_secundaria.csv", dispersion.getIdDispersion() + "_reporte_laboral.csv");
 	}
 
 }

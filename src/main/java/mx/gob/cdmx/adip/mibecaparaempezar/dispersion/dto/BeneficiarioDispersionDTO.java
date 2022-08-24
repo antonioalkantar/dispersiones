@@ -21,12 +21,14 @@ public class BeneficiarioDispersionDTO {
 	private Long idBeneficiarioSinDispersion;
 	@CsvBindByName(column = "numeroCuenta")
 	private String numeroCuenta;
+	private Double montoAcumulado;
 
 	public BeneficiarioDispersionDTO() {
 		catCicloEscolar = new CatCicloEscolarDTO();
 		catPeriodoEscolar = new CatPeriodoEscolarDTO();
 		catNiveEducativo = new CatNivelEducativoDTO();
 		catMontoApoyo = new CatMontoApoyoDTO();
+		montoAcumulado = 0.0;
 	}
 
 	public BeneficiarioDispersionDTO(Long idBeneficiarioDispersion, Long idDispersion, String curpBeneficiario, Long idCicloEscolar, 
@@ -137,6 +139,14 @@ public class BeneficiarioDispersionDTO {
 
 	public void setCurpTutor(String curpTutor) {
 		this.curpTutor = curpTutor;
+	}
+
+	public Double getMontoAcumulado() {
+		return montoAcumulado;
+	}
+
+	public void setMontoAcumulado(Double montoAcumulado) {
+		this.montoAcumulado = montoAcumulado;
 	}
 	
 }

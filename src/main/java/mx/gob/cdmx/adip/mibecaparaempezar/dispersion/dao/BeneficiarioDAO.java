@@ -1,6 +1,7 @@
 package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.db.PostgresDatasource;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDTO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionReporteDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioSolicitudTutorDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatCicloEscolarDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatEstatusDispersionDTO;
@@ -148,6 +150,55 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		}
 		return lstBeneficiariosSolTutorDTO;
 	}
+	
+	public List<BeneficiarioDispersionReporteDTO> consultarBeneficiariosDispersadosPorIdDispersion(DispersionDTO dispersion) {
+		StringBuilder strQuery = new StringBuilder();
+
+		strQuery.append(" SELECT ");
+		strQuery.append(" t2.id_nivel_educativo AS idNivelEducativo, ");
+		strQuery.append(" 	t.curp AS curpTutor, ");
+		strQuery.append(" 	t2.curp_beneficiario AS curpBeneficiario, ");
+		strQuery.append(" 	dcb.numero_cuenta AS numeroCuenta, ");
+		strQuery.append(" 	t2.monto AS monto ");
+		strQuery.append(" FROM ( ");
+		strQuery.append(" 	SELECT t1.curp_beneficiario, SUM(t1.monto) AS monto, t1.id_nivel_educativo FROM ( ");
+		strQuery.append(" 				SELECT bd.id_dispersion, bd.id_nivel_educativo, bd.curp_beneficiario, cma.monto FROM mibecaparaempezar.beneficiario_dispersion bd ");
+		strQuery.append(" 				INNER JOIN mibecaparaempezar.cat_monto_apoyo cma ");
+		strQuery.append(" 				ON cma.id_monto_apoyo = bd.id_monto_apoyo ");
+		strQuery.append(" 	ORDER BY bd.curp_beneficiario ASC) t1 WHERE t1.id_dispersion = ? ");
+		strQuery.append(" GROUP BY t1.curp_beneficiario, t1.monto, t1.id_dispersion, t1.id_nivel_educativo) t2 ");
+		strQuery.append(" INNER JOIN mibecaparaempezar.beneficiario b ");
+		strQuery.append(" ON b.curp_beneficiario = t2.curp_beneficiario ");
+		strQuery.append(" INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
+		strQuery.append(" ON dcb.id_beneficiario = b.id_beneficiario ");
+		strQuery.append(" INNER JOIN mibecaparaempezar.crc_beneficiario_solicitud cbs ");
+		strQuery.append(" ON b.id_beneficiario = cbs.id_beneficiario ");
+		strQuery.append(" INNER JOIN mibecaparaempezar.solicitud s ");
+		strQuery.append(" ON cbs.id_solicitud = s.id_solicitud ");
+		strQuery.append(" INNER JOIN mibecaparaempezar.tutor t ");
+		strQuery.append(" ON t.id_usuario_llave_cdmx = s.id_usuario_llave_cdmx; ");
+
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		List<BeneficiarioDispersionReporteDTO> lstBeneficiariosDispersionReporteDTO = new ArrayList<>();
+		try {
+			conn = PostgresDatasource.getInstance().getConnection();
+			pstm = conn.prepareStatement(strQuery.toString());
+			pstm.setLong(1, dispersion.getIdDispersion());
+			rs = pstm.executeQuery();
+			while (rs.next()) {
+				lstBeneficiariosDispersionReporteDTO.add(mapearBeneficiarioDispersionReporteDTO(rs));
+			}
+		} catch (SQLException e1) {
+			LOGGER.error(
+					"Ocurrió un error al consultar la información de los beneficiarios dispersados [" + strQuery.toString() + "]:",
+					e1);
+		} finally {
+			PostgresDatasource.getInstance().close(null, pstm, conn);
+		}
+		return lstBeneficiariosDispersionReporteDTO;
+	}
 
 	private BeneficiarioSolicitudTutorDTO mapearBeneficiarioSolicitudTutorDTO(ResultSet rs, Boolean esComplementaria) throws SQLException {
 		BeneficiarioSolicitudTutorDTO bst = new BeneficiarioSolicitudTutorDTO();
@@ -163,6 +214,16 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 			bst.setIdBeneficiarioSinDispersion(rs.getLong("idBeneficiarioSinDispersion"));
 		}
 		return bst;
+	}
+	
+	private BeneficiarioDispersionReporteDTO mapearBeneficiarioDispersionReporteDTO(ResultSet rs) throws SQLException {
+		BeneficiarioDispersionReporteDTO bdr = new BeneficiarioDispersionReporteDTO();
+		bdr.setIdNivelEducativo(rs.getInt("idNivelEducativo"));
+		bdr.setCurpTutor(rs.getString("curpTutor"));
+		bdr.setCurpBeneficiario(rs.getString("curpBeneficiario"));
+		bdr.setNumeroCuenta(rs.getString("numeroCuenta"));
+		bdr.setMonto(rs.getDouble("monto"));
+		return bdr;
 	}
 
 }

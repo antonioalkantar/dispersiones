@@ -2,7 +2,9 @@ package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.business;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,14 +19,18 @@ import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BeneficiarioDispersionD
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BeneficiarioSinDispersionDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.CatMontoApoyoDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.DispersionDAO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionDTO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionReporteDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioSolicitudTutorDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatEstatusDispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatMontoApoyoDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.DispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.ResultadoEjecucionDTO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.environment.Environment;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.multithreading.ContadorProgresoSynchronized;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.multithreading.ValidaBeneficiarioCallable;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util.Constantes;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util.CsvUtils;
 
 /**
  * @author raul
@@ -140,6 +146,21 @@ public class ValidaBeneficiarios {
 
 				dispersionDAO.actualizarContadores(dispersionDTO, porcentajeDispersados, (int) intTotalRegistrosDispersados, porcentajeNoDispersados, (int) intTotalRegistrosNoDispersados);
 
+				// Lista para reportes CSV con Dispersion
+				Map<String, List<BeneficiarioDispersionReporteDTO>> mapaReportesNivelAcademicoConDispersion = new HashMap<>();
+				mapaReportesNivelAcademicoConDispersion.put("preescolar", new ArrayList<>());
+				mapaReportesNivelAcademicoConDispersion.put("primaria", new ArrayList<>());
+				mapaReportesNivelAcademicoConDispersion.put("secundaria", new ArrayList<>());
+				mapaReportesNivelAcademicoConDispersion.put("laboral", new ArrayList<>());
+				
+				List<BeneficiarioDispersionReporteDTO> lstBeneficiariosDispersionReporte = beneficiarioDAO.consultarBeneficiariosDispersadosPorIdDispersion(dispersionDTO);
+				for (BeneficiarioDispersionReporteDTO beneficiarioDispersion : lstBeneficiariosDispersionReporte) {
+					asignarListaReportesDispersion(beneficiarioDispersion, mapaReportesNivelAcademicoConDispersion);
+				}
+				
+				// Generamos los CSV
+				crearReportesCSV(dispersionDTO, mapaReportesNivelAcademicoConDispersion);
+				
 				// 8. Se actualiza el estatus de la dispersion a Concluido y se coloca la fechaConclusion del proceso
 				dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(), Constantes.ID_ESTATUS_DISPERSION_CONCLUIDO);
 				
@@ -159,13 +180,67 @@ public class ValidaBeneficiarios {
 			}
 		}
 	}
+	
+	private void asignarListaReportesDispersion(BeneficiarioDispersionReporteDTO beneficiarioDispersion, Map<String, List<BeneficiarioDispersionReporteDTO>> mapaReportesNivelAcademicoConDispersion) {
+		switch (beneficiarioDispersion.getIdNivelEducativo()) {
+		case Constantes.ID_PREESCOLAR:
+			mapaReportesNivelAcademicoConDispersion.get("preescolar").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_PRIMARIA:
+			mapaReportesNivelAcademicoConDispersion.get("primaria").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_SECUNDARIA:
+			mapaReportesNivelAcademicoConDispersion.get("secundaria").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_CAM_LABORAL:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_PRIMARIA_ADULTOS:
+			mapaReportesNivelAcademicoConDispersion.get("primaria").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_SECUNDARIA_ADULTOS:
+			mapaReportesNivelAcademicoConDispersion.get("secundaria").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_CAM_PREESCOLAR:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_CAM_PRIMARIA:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
+			break;
+		case Constantes.ID_CAM_SECUNDARIA:
+			mapaReportesNivelAcademicoConDispersion.get("laboral").add(beneficiarioDispersion);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private List<String[]> mapearDispersion(List<BeneficiarioDispersionReporteDTO> lstBeneficiariosConDispersion) {
+		List<String[]> datosReporte = new ArrayList<String[]>();
+		for (BeneficiarioDispersionReporteDTO registroDispersionReporte : lstBeneficiariosConDispersion) {
+			datosReporte.add(new String[] { registroDispersionReporte.getCurpTutor(), registroDispersionReporte.getNumeroCuenta(), registroDispersionReporte.getMonto().toString() });
+		}
+		return datosReporte;
+	}
+	
+	private synchronized void crearReportesCSV(DispersionDTO dispersion, Map<String, List<BeneficiarioDispersionReporteDTO>> mapaReportesNivelAcademicoConDispersion) {
+		List<String[]> reporteDispersionPreescolar = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("preescolar"));
+		List<String[]> reporteDispersionPrimaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("primaria"));
+		List<String[]> reporteDispersionSecundaria = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("secundaria"));
+		List<String[]> reporteDispersionLaboral = mapearDispersion(mapaReportesNivelAcademicoConDispersion.get("laboral"));
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_preescolar.csv", reporteDispersionPreescolar);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_primaria.csv", reporteDispersionPrimaria);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_secundaria.csv", reporteDispersionSecundaria);
+		CsvUtils.addDataToCSV(Environment.getPathFolderPadrones() + dispersion.getIdDispersion() + "_reporte_laboral.csv", reporteDispersionLaboral);
+		dispersionDAO.actualizarArchivos(dispersion, dispersion.getIdDispersion() + "_reporte_preescolar.csv", dispersion.getIdDispersion() + "_reporte_primaria.csv", dispersion.getIdDispersion() + "_reporte_secundaria.csv", dispersion.getIdDispersion() + "_reporte_laboral.csv");
+	}
 
 	private List<Callable<ResultadoEjecucionDTO>> dividirCarga(DispersionDTO dispersionDTO,
 			List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios, List<CatMontoApoyoDTO> lstCatMontoApoyo,
 			BeneficiarioDispersionDAO beneficiarioDispersionDAO,
 			BeneficiarioSinDispersionDAO beneficiarioSinDispersionDAO, DispersionDAO dispersionDAO) {
 		List<Callable<ResultadoEjecucionDTO>> lstThreads = new ArrayList<>();
-		int tamanioSublistas = 100; // 100 registros a procesar por thread
+		int tamanioSublistas = 10; // 100 registros a procesar por thread
 		List<List<BeneficiarioSolicitudTutorDTO>> lstCargaDividida = ListUtils.partition(lstBeneficiarios,
 				tamanioSublistas);
 

@@ -146,7 +146,11 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 		} finally {
 			PostgresDatasource.getInstance().close(rs, stm, conn);
 		}
-		return lstDispersionesDTO.get(0);
+		if(lstDispersionesDTO.size() > 0) {
+			return lstDispersionesDTO.get(0);
+		} else {
+			return null;
+		}
 	}
 
 	public void actualizarEstatus(long idDispersion, long idEstatusDispersion) {

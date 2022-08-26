@@ -39,6 +39,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="alcaldiaId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="alcaldia" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="codigoPostal" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="nivelEducativoFIBIEDCDMXId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="nivelEducativoFIBIEDCDMX" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -71,7 +73,9 @@ import javax.xml.bind.annotation.XmlType;
     "colonia",
     "alcaldiaId",
     "alcaldia",
-    "codigoPostal"
+    "codigoPostal",
+    "nivelEducativoFIBIEDCDMXId",
+    "nivelEducativoFIBIEDCDMX"
 })
 public class MciResponse {
 
@@ -98,6 +102,8 @@ public class MciResponse {
     protected String alcaldiaId;
     protected String alcaldia;
     protected String codigoPostal;
+    protected int nivelEducativoFIBIEDCDMXId;
+    protected String nivelEducativoFIBIEDCDMX;
 
     /**
      * Obtiene el valor de la propiedad cicloEscolarId.
@@ -609,6 +615,46 @@ public class MciResponse {
      */
     public void setCodigoPostal(String value) {
         this.codigoPostal = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad nivelEducativoFIBIEDCDMXId.
+     * 
+     */
+    public int getNivelEducativoFIBIEDCDMXId() {
+        return nivelEducativoFIBIEDCDMXId;
+    }
+
+    /**
+     * Define el valor de la propiedad nivelEducativoFIBIEDCDMXId.
+     * 
+     */
+    public void setNivelEducativoFIBIEDCDMXId(int value) {
+        this.nivelEducativoFIBIEDCDMXId = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad nivelEducativoFIBIEDCDMX.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNivelEducativoFIBIEDCDMX() {
+        return nivelEducativoFIBIEDCDMX;
+    }
+
+    /**
+     * Define el valor de la propiedad nivelEducativoFIBIEDCDMX.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNivelEducativoFIBIEDCDMX(String value) {
+        this.nivelEducativoFIBIEDCDMX = value;
     }
 
 }

@@ -86,6 +86,7 @@ public class ValidaBeneficiarios {
 				
 				// 3. Se obtienen los registros de beneficiarios
 				List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios = null;
+				List<BeneficiarioSolicitudTutorDTO> lstBeneficiariosNoDispersados = null;
 				
 				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
 					// 3.1 Se obtiene la ultima dispersion para procesar sus beneficiarios no dispersados
@@ -100,7 +101,7 @@ public class ValidaBeneficiarios {
 					DispersionDTO ultimaDispersion = dispersionDAO.obtenerUltimaDispersionPorFechaConclusion(dispersionDTO);
 					if(ultimaDispersion != null) {
 						// 3.4 Se obtienen los registros de beneficiarios
-						lstBeneficiarios.addAll(beneficiarioDAO.buscarBeneficiariosActivosComplementaria(ultimaDispersion.getIdDispersion()));
+						lstBeneficiariosNoDispersados = beneficiarioDAO.buscarBeneficiariosActivosComplementaria(ultimaDispersion.getIdDispersion());
 					}
 					LOGGER.info("Total Registros a procesar:" + lstBeneficiarios.size());
 				}
@@ -131,6 +132,13 @@ public class ValidaBeneficiarios {
 				}
 				double porcentajeDispersados =  Math.round((intTotalRegistrosDispersados * 100) / intTotalRegistrosProcesados);
 				double porcentajeNoDispersados =  Math.round((intTotalRegistrosNoDispersados * 100) / intTotalRegistrosProcesados);
+				
+				// 7. Se divide la carga del archivos en hilos de ejecución (Callables)
+				LOGGER.info("Preparando los hilos de ejecución...");
+				if(lstBeneficiariosNoDispersados != null && lstBeneficiariosNoDispersados.size() > 0) {
+					List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiariosNoDispersados = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO);
+					LOGGER.info("Se prepararon " + lstHilosBeneficiariosNoDispersados.size() + " hilos de ejecución.");
+				}
 
 				LOGGER.info("*********************************************************************");
 				LOGGER.info("************ RESULTADOS ARCHIVO_ID: " + dispersionDTO.getIdDispersion() + " *************************");
@@ -139,14 +147,14 @@ public class ValidaBeneficiarios {
 				LOGGER.info("************ Total registros no dispersados :" + intTotalRegistrosNoDispersados + " **************");
 				LOGGER.info("*********************************************************************");
 
-				// 7. Actualizar datos generales de la dispersion(Num de registros, dispersados, No dispersados)
+				// 8. Actualizar datos generales de la dispersion(Num de registros, dispersados, No dispersados)
 				if (intTotalRegistrosProcesados != lstBeneficiarios.size()) {
 					LOGGER.warn("No coincidió el número de registros procesados vs el número de registros obtenidos de la BD");
 				}
 
 				dispersionDAO.actualizarContadores(dispersionDTO, porcentajeDispersados, (int) intTotalRegistrosDispersados, porcentajeNoDispersados, (int) intTotalRegistrosNoDispersados);
 
-				// Lista para reportes CSV con Dispersion
+				// 9. Lista para reportes CSV con Dispersion
 				Map<String, List<BeneficiarioDispersionReporteDTO>> mapaReportesNivelAcademicoConDispersion = new HashMap<>();
 				mapaReportesNivelAcademicoConDispersion.put("preescolar", new ArrayList<>());
 				mapaReportesNivelAcademicoConDispersion.put("primaria", new ArrayList<>());
@@ -158,17 +166,17 @@ public class ValidaBeneficiarios {
 					asignarListaReportesDispersion(beneficiarioDispersion, mapaReportesNivelAcademicoConDispersion);
 				}
 				
-				// Generamos los CSV
+				// 10. Generamos los CSV
 				crearReportesCSV(dispersionDTO, mapaReportesNivelAcademicoConDispersion);
 				
-				// 8. Se actualiza el estatus de la dispersion a Concluido y se coloca la fechaConclusion del proceso
+				// 11. Se actualiza el estatus de la dispersion a Concluido y se coloca la fechaConclusion del proceso
 				dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(), Constantes.ID_ESTATUS_DISPERSION_CONCLUIDO);
 				
 				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-				// 9. Se actualiza la bandera para solo mostrar icono de ejecutar validacion al ultimo registro
+				// 12. Se actualiza la bandera para solo mostrar icono de ejecutar validacion al ultimo registro
 					dispersionDAO.actualizarPermiteEjecucion(dispersionDTO);
 				}
-				// 10. Se actualiza la fecha Concluido del proceso
+				// 13. Se actualiza la fecha Concluido del proceso
 				dispersionDAO.actualizarFechaConcluido(dispersionDTO.getIdDispersion(), new Date());
 			} catch (Exception e) {
 				LOGGER.error("Ocurrió un error al procesar la dispersión con ID:" + dispersionDTO.getIdDispersion() + ":", e);

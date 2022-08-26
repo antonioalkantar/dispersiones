@@ -74,6 +74,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  on cbs.id_beneficiario = b.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b.id_beneficiario ");
+		strQuery.append("WHERE s.id_estatus_beneficiario = 1 ");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud ASC ");
 
@@ -128,6 +129,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  on dcb.id_beneficiario = b1.id_beneficiario ");
 		strQuery.append("WHERE bsda.id_dispersion = ").append(idDispersion);
 		strQuery.append("	  	AND bsda.id_beneficiario_dispersion IS NULL ");
+		strQuery.append("AND s.id_estatus_beneficiario = 1 ");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud asc; ");
 

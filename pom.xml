@@ -153,7 +153,7 @@
 				<db.user>umibecae</db.user>
 				<db.password>GEqFVu61Gl#Vf69h*GU*</db.password>
 
-				<path.folder.padrones>/home/usrmibecadev/dispersiones/</path.folder.padrones>
+				<path.folder.padrones>/home/usrmibecadev/archivos/dispersiones/</path.folder.padrones>
 
 				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
 				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>
@@ -178,7 +178,7 @@
 				<db.user>umibeca</db.user>
 				<db.password>w5tdZDl1cp7l9KR3KH8b</db.password>
 
-				<path.folder.padrones>/home/wwwmibeca/dispersiones/</path.folder.padrones>
+				<path.folder.padrones>/home/wwwmibeca/archivos/dispersiones/</path.folder.padrones>
 
 				<services.thirdparty.aecdmx.valida.alumno>https://</services.thirdparty.aecdmx.valida.alumno>
 				<services.thirdparty.aecdmx.valida.alumno.username></services.thirdparty.aecdmx.valida.alumno.username>

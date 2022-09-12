@@ -10,6 +10,15 @@ public class BeneficiarioSolicitudTutorDTO {
 	private Long idGradoEscolar;
 	private Long idBeneficiario;
 	private String curpBeneficiario;
+	private Long idSolicitud;
+	private String cctSolicitud;
+	private String turnoSolicitud;
+	private String gradoEscolarSolicitud;
+	private String nombreCctSolicitud;
+	private String calleSolicitud;
+	private String coloniaSolicitud;
+	private Long alcaldiaSolicitud;
+	private String codigoPostalSolicitud;
 	private Long idBeneficiarioSinDispersion;
 
 	public Long getIdUsuario() {
@@ -82,6 +91,78 @@ public class BeneficiarioSolicitudTutorDTO {
 
 	public void setIdBeneficiarioSinDispersion(Long idBeneficiarioSinDispersion) {
 		this.idBeneficiarioSinDispersion = idBeneficiarioSinDispersion;
+	}
+
+	public String getCctSolicitud() {
+		return cctSolicitud;
+	}
+
+	public void setCctSolicitud(String cctSolicitud) {
+		this.cctSolicitud = cctSolicitud;
+	}
+
+	public String getTurnoSolicitud() {
+		return turnoSolicitud;
+	}
+
+	public void setTurnoSolicitud(String turnoSolicitud) {
+		this.turnoSolicitud = turnoSolicitud;
+	}
+
+	public String getGradoEscolarSolicitud() {
+		return gradoEscolarSolicitud;
+	}
+
+	public void setGradoEscolarSolicitud(String gradoEscolarSolicitud) {
+		this.gradoEscolarSolicitud = gradoEscolarSolicitud;
+	}
+
+	public String getNombreCctSolicitud() {
+		return nombreCctSolicitud;
+	}
+
+	public void setNombreCctSolicitud(String nombreCctSolicitud) {
+		this.nombreCctSolicitud = nombreCctSolicitud;
+	}
+
+	public String getCalleSolicitud() {
+		return calleSolicitud;
+	}
+
+	public void setCalleSolicitud(String calleSolicitud) {
+		this.calleSolicitud = calleSolicitud;
+	}
+
+	public String getColoniaSolicitud() {
+		return coloniaSolicitud;
+	}
+
+	public void setColoniaSolicitud(String coloniaSolicitud) {
+		this.coloniaSolicitud = coloniaSolicitud;
+	}
+
+	public Long getAlcaldiaSolicitud() {
+		return alcaldiaSolicitud;
+	}
+
+	public void setAlcaldiaSolicitud(Long alcaldiaSolicitud) {
+		this.alcaldiaSolicitud = alcaldiaSolicitud;
+	}
+
+	public String getCodigoPostalSolicitud() {
+		return codigoPostalSolicitud;
+	}
+
+	public void setCodigoPostalSolicitud(String codigoPostalSolicitud) {
+		this.codigoPostalSolicitud = codigoPostalSolicitud;
+	}
+
+	public Long getIdSolicitud() {
+		return idSolicitud;
+	}
+
+	public void setIdSolicitud(Long idSolicitud) {
+		this.idSolicitud = idSolicitud;
 	}
 	
 }

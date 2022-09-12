@@ -17,8 +17,10 @@ import org.apache.logging.log4j.Logger;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BeneficiarioDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BeneficiarioDispersionDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BeneficiarioSinDispersionDAO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.BitacoraDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.CatMontoApoyoDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.DispersionDAO;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dao.PadronExternoDAO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionReporteDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioSolicitudTutorDTO;
@@ -50,6 +52,10 @@ public class ValidaBeneficiarios {
 	private BeneficiarioDispersionDAO beneficiarioDispersionDAO = new BeneficiarioDispersionDAO();
 
 	private BeneficiarioSinDispersionDAO beneficiarioSinDispersionDAO = new BeneficiarioSinDispersionDAO();
+	
+	private BitacoraDAO bitacoraDAO = new BitacoraDAO();
+	
+	private PadronExternoDAO padronExternoDAO = new PadronExternoDAO();;
 
 	public ValidaBeneficiarios() {
 //		miDAO = new MiDAO();
@@ -111,7 +117,7 @@ public class ValidaBeneficiarios {
 
 				// 4. Se divide la carga del archivos en hilos de ejecución (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
-				List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiarios = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO);
+				List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiarios = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO);
 				LOGGER.info("Se prepararon " + lstHilosBeneficiarios.size() + " hilos de ejecución.");
 
 				// 5. Se invocan los diversos hilos de ejecución para realizar los inserts de
@@ -136,7 +142,7 @@ public class ValidaBeneficiarios {
 				// 7. Se divide la carga del archivos en hilos de ejecución (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
 				if(lstBeneficiariosNoDispersados != null && lstBeneficiariosNoDispersados.size() > 0) {
-					List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiariosNoDispersados = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO);
+					List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiariosNoDispersados = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO);
 					LOGGER.info("Se prepararon " + lstHilosBeneficiariosNoDispersados.size() + " hilos de ejecución.");
 				}
 
@@ -246,7 +252,7 @@ public class ValidaBeneficiarios {
 	private List<Callable<ResultadoEjecucionDTO>> dividirCarga(DispersionDTO dispersionDTO,
 			List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios, List<CatMontoApoyoDTO> lstCatMontoApoyo,
 			BeneficiarioDispersionDAO beneficiarioDispersionDAO,
-			BeneficiarioSinDispersionDAO beneficiarioSinDispersionDAO, DispersionDAO dispersionDAO) {
+			BeneficiarioSinDispersionDAO beneficiarioSinDispersionDAO, DispersionDAO dispersionDAO, BitacoraDAO bitacoraDAO, PadronExternoDAO padronExternoDAO) {
 		List<Callable<ResultadoEjecucionDTO>> lstThreads = new ArrayList<>();
 		int tamanioSublistas = 10; // 100 registros a procesar por thread
 		List<List<BeneficiarioSolicitudTutorDTO>> lstCargaDividida = ListUtils.partition(lstBeneficiarios,
@@ -256,7 +262,7 @@ public class ValidaBeneficiarios {
 								// en cada Thread
 		for (List<BeneficiarioSolicitudTutorDTO> listBeneficiarios : lstCargaDividida) {
 			lstThreads.add(new ValidaBeneficiarioCallable(dispersionDTO, listBeneficiarios, indexInicial,
-					lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO));
+					lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO));
 			indexInicial += 100;
 		}
 		return lstThreads;

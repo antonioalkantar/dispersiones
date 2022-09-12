@@ -55,7 +55,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 
 	public List<BeneficiarioSolicitudTutorDTO> buscarBeneficiariosActivos() {
 		StringBuilder strQuery = new StringBuilder();
-
+		
 		strQuery.append("SELECT ");
 		strQuery.append("  t.id_usuario_llave_cdmx as idUsuario, ");
 		strQuery.append("  t.curp as curpTutor, ");
@@ -64,7 +64,16 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  s.id_nivel_educativo as idNivelEducativo, ");
 		strQuery.append("  s.grado_escolar as idGradoEscolar, ");
 		strQuery.append("  b.id_beneficiario as idBeneficiario, ");
-		strQuery.append("  b.curp_beneficiario as curpBeneficiario ");
+		strQuery.append("  b.curp_beneficiario as curpBeneficiario, ");
+		strQuery.append("  s.id_solicitud as idSolicitud, ");
+		strQuery.append("  s.cct as cct,  ");
+		strQuery.append("  s.turno as turno,  ");
+		strQuery.append("  s.grado_escolar as gradoEscolar, "); 
+		strQuery.append("  s.nombre as nombreCct, ");
+		strQuery.append("  s.calle as calle,  ");
+		strQuery.append("  s.colonia as colonia,  ");
+		strQuery.append("  s.id_alcaldia as alcaldia,  ");
+		strQuery.append("  s.codigopostal as codigoPostal  ");
 		strQuery.append("FROM mibecaparaempezar.tutor t ");
 		strQuery.append("INNER JOIN mibecaparaempezar.solicitud s ");
 		strQuery.append("  on t.id_usuario_llave_cdmx = s.id_usuario_llave_cdmx ");
@@ -74,7 +83,17 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  on cbs.id_beneficiario = b.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b.id_beneficiario ");
-		strQuery.append("WHERE s.id_estatus_beneficiario = 1 ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus ce ");
+		strQuery.append("  on ce.id_estatus = t.id_estatus  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_municipios cm ");
+		strQuery.append("  on cm.id_municipio = s.id_alcaldia  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.encuesta e  ");
+		strQuery.append("  on e.id_solicitud = s.id_solicitud  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus_beneficiario ceb  ");
+		strQuery.append("  on ceb.id_estatus_beneficiario = s.id_estatus_beneficiario  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_ciclo_escolar cce  ");
+		strQuery.append("  on cce.id_ciclo_escolar = e.id_ciclo_escolar  ");
+		strQuery.append("WHERE ce.id_estatus !=  1 AND cce.estatus = true  ");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud ASC ");
 
@@ -110,6 +129,15 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  s.grado_escolar as idGradoEscolar, ");
 		strQuery.append("  b1.id_beneficiario as idBeneficiario, ");
 		strQuery.append("  b1.curp_beneficiario as curpBeneficiario, ");
+		strQuery.append("  s.id_solicitud as idSolicitud, ");
+		strQuery.append("  s.cct as cct, ");
+		strQuery.append("  s.turno as turno, ");
+		strQuery.append("  s.grado_escolar as gradoEscolar, ");
+		strQuery.append("  s.nombre as nombreCct, ");
+		strQuery.append("  s.calle as calle, ");
+		strQuery.append("  s.colonia as colonia, ");
+		strQuery.append("  s.id_alcaldia as alcaldia, ");
+		strQuery.append("  s.codigopostal as codigoPostal, ");
 		strQuery.append("  bsda.id_beneficiario_sin_dispersion as idBeneficiarioSinDispersion ");
 		strQuery.append("FROM mibecaparaempezar.tutor t ");
 		strQuery.append("INNER JOIN mibecaparaempezar.solicitud s ");
@@ -124,12 +152,22 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  )) as b1 ");
 		strQuery.append(" ) b1 on b1.id_beneficiario = cbs.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.beneficiario_sin_dispersion bsda ");
-		strQuery.append("on bsda.curp_beneficiario = b1.curp_beneficiario ");
+		strQuery.append("  on bsda.curp_beneficiario = b1.curp_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b1.id_beneficiario ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus ce ");
+		strQuery.append("  on ce.id_estatus = t.id_estatus  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_municipios cm  ");
+		strQuery.append("  on cm.id_municipio = s.id_alcaldia  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.encuesta e  ");
+		strQuery.append("  on e.id_solicitud = s.id_solicitud  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus_beneficiario ceb  ");
+		strQuery.append("  on ceb.id_estatus_beneficiario = s.id_estatus_beneficiario  ");
+		strQuery.append("INNER JOIN mibecaparaempezar.cat_ciclo_escolar cce ");
+		strQuery.append("  on cce.id_ciclo_escolar = e.id_ciclo_escolar ");
 		strQuery.append("WHERE bsda.id_dispersion = ").append(idDispersion);
-		strQuery.append("	  	AND bsda.id_beneficiario_dispersion IS NULL ");
-		strQuery.append("AND s.id_estatus_beneficiario = 1 ");
+		strQuery.append("  AND bsda.id_beneficiario_dispersion IS NULL ");
+		strQuery.append("  AND ce.id_estatus !=  1 AND cce.estatus = true ");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud asc; ");
 
@@ -212,6 +250,15 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		bst.setIdGradoEscolar(rs.getLong("idGradoEscolar"));
 		bst.setIdBeneficiario(rs.getLong("idBeneficiario"));
 		bst.setCurpBeneficiario(rs.getString("curpBeneficiario"));
+		bst.setIdSolicitud(rs.getLong("idSolicitud"));
+		bst.setCctSolicitud(rs.getString("cct"));
+		bst.setTurnoSolicitud(rs.getString("turno"));
+		bst.setGradoEscolarSolicitud(rs.getString("gradoEscolar"));
+		bst.setNombreCctSolicitud(rs.getString("nombreCct"));
+		bst.setCalleSolicitud(rs.getString("calle"));
+		bst.setColoniaSolicitud(rs.getString("colonia"));
+		bst.setAlcaldiaSolicitud(rs.getLong("alcaldia"));
+		bst.setCodigoPostalSolicitud(rs.getString("codigoPostal"));
 		if(esComplementaria) {
 			bst.setIdBeneficiarioSinDispersion(rs.getLong("idBeneficiarioSinDispersion"));
 		}

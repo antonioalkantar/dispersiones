@@ -64,6 +64,7 @@ public final class Constantes {
 	public static final String BENEFICIARIO_ACTIVO = "Activo";
 	public static final String BENEFICIARIO_ESCUELA_PRIVADA = "privada";
 	public static final String BENEFICIARIO_NO_LOCALIZADO = "localizado";
+	public static final String BENEFICIARIO_LOCALIZADO = "No localizado";
 
 	// Bandeja validacion
 	public static final long ID_TIPO_DISPERSION_ORDINARIA = 1;
@@ -71,13 +72,13 @@ public final class Constantes {
 	public static final long ID_ESTATUS_DISPERSION_EN_PROCESO = 1;
 	public static final long ID_ESTATUS_DISPERSION_PROCESANDO = 2;
 	public static final long ID_ESTATUS_DISPERSION_CONCLUIDO = 3;
-	
+
 	public static final String TIPO_VALIDACION_ORDINARIA = "ordinaria";
 	public static final String TIPO_VALIDACION_COMPLEMENTARIA = "complementaria";
 	public static final String NOMBRE_ARCHIVO_REPORTE = "reporte_dispersion";
 	public static final String EXTENSION_ZIP = ".zip";
 	public static final String CONTENT_TYPE_ZIP = "application/zip";
-	
+
 	public static final String UTILES_ESCOLARES = "Útiles escolares";
 	public static final String ROPA = "Ropa";
 	public static final String ZAPATOS = "Zapatos";
@@ -110,10 +111,13 @@ public final class Constantes {
 	public static final String DESC_LACTANTE = "LACTANTE";
 	public static final String DESC_MATERNAL = "MATERNAL";
 	public static final int ID_PREESCOLAR = 1;
+	public static final Long _ID_PREESCOLAR = 1l;
 	public static final String DESC_PREESCOLAR = "PREESCOLAR";
 	public static final int ID_PRIMARIA = 2;
+	public static final Long _ID_PRIMARIA = 2l;
 	public static final String DESC_PRIMARIA = "PRIMARIA";
 	public static final int ID_SECUNDARIA = 3;
+	public static final Long _ID_SECUNDARIA = 3l;
 	public static final String DESC_SECUNDARIA = "SECUNDARIA";
 	public static final int ID_PRIMARIA_ADULTOS = 4;
 	public static final String DESC_PRIMARIA_ADULTOS = "PRIMARIA PARA ADULTOS";
@@ -131,8 +135,20 @@ public final class Constantes {
 	public static final String DESC_OTRO = "OTRO";
 
 	public static final String LADA_NACIONAL = "52";
-	
-	//MOTIVOS NO DISPERSION
+
+	// NIVELES EDUCATIVOS PADRON EXTERNO
+	public static final String DESC_CAM_PREESCOLAR_PAD_EXT = "CAM PREESCOLAR";
+	public static final String DESC_CAM_PRIMARIA_PAD_EXT = "CAM PRIMARIA";
+	public static final String DESC_CAM_SECUNDARIA_PAD_EXT = "CAM SECUNDARIA";
+	public static final String DESC_CAM_LABORAL_PAD_EXT = "CAM LABORAL";
+	public static final String DESC_SECUNDARIA_ADULTOS_PAD_EXT = "SECUNDARIA ADULTOS";
+	public static final String DESC_PRIMARIA_ADULTOS_PAD_EXT = "PRIMARIA ADULTOS";
+	public static final int ESTATUS_BENEFICIARIO_ACTIVO = 1;
+//	public static final String ORIGEN_PADRON_EXTERNO = "padron externo";
+    public static final Integer CODIGO_MUNICIPIO_ZERO = 0;
+    public static final Integer ID_MUNICIPIO_FORANEO = 18;
+    public static final Integer CODIGO_PAGATODO_NO_ENVIADO = 99;
+	// MOTIVOS NO DISPERSION
 	public static final long TUTOR_NO_APROBADO = 1;
 	public static final long BENEFICIARIO_NO_ACTIVO = 2;
 

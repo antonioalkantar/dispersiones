@@ -78,17 +78,25 @@ public class CsvUtils {
         try {
         	if (file.exists()) {
         		outputfile = new FileWriter(file, true);
+        		CSVWriter writer = new CSVWriter(outputfile, 
+						 CSVWriter.DEFAULT_SEPARATOR,
+                        CSVWriter.NO_QUOTE_CHARACTER,
+                        CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                        CSVWriter.DEFAULT_LINE_END);
+				writer.writeAll(lst);
+				writer.close();
         	} else {
+        		String[] header = { "Curp Beneficiario", "Numero de Cuenta", "Monto" };
         		outputfile = new FileWriter(file);
+        		CSVWriter writer = new CSVWriter(outputfile, 
+						 CSVWriter.DEFAULT_SEPARATOR,
+                        CSVWriter.NO_QUOTE_CHARACTER,
+                        CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                        CSVWriter.DEFAULT_LINE_END);
+        		lst.add(0, header);
+        		writer.writeAll(lst);
+				writer.close();
         	}
-  
-            CSVWriter writer = new CSVWriter(outputfile, 
-            								 CSVWriter.DEFAULT_SEPARATOR,
-                                             CSVWriter.NO_QUOTE_CHARACTER,
-                                             CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                                             CSVWriter.DEFAULT_LINE_END);
-            writer.writeAll(lst);
-            writer.close();
         }
         catch (IOException e) {
             e.printStackTrace();

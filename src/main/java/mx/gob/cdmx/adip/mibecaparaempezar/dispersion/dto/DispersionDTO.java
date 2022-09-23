@@ -213,4 +213,19 @@ public class DispersionDTO {
 	public void setRutaArchivoLaboral(String rutaArchivoLaboral) {
 		this.rutaArchivoLaboral = rutaArchivoLaboral;
 	}
+
+	@Override
+	public String toString() {
+		return "DispersionDTO [idDispersion=" + idDispersion + ", catCicloEscolar=" + catCicloEscolar
+				+ ", catPeriodoEscolar=" + catPeriodoEscolar + ", catTipoDispersion=" + catTipoDispersion
+				+ ", numBeneficiarios=" + numBeneficiarios + ", fechaEjecucion=" + fechaEjecucion
+				+ ", idUsuarioEjecucion=" + idUsuarioEjecucion + ", fechaConclusion=" + fechaConclusion
+				+ ", catEstatusDispersion=" + catEstatusDispersion + ", aplicaDispersionPorcentaje="
+				+ aplicaDispersionPorcentaje + ", aplicaDispersionNumero=" + aplicaDispersionNumero
+				+ ", noAplicaDispersionPorcentaje=" + noAplicaDispersionPorcentaje + ", noAplicaDispersionNumero="
+				+ noAplicaDispersionNumero + ", fechaDescarga=" + fechaDescarga + ", permiteEjecucion="
+				+ permiteEjecucion + ", rutaArchivoPreescolar=" + rutaArchivoPreescolar + ", rutaArchivoPrimaria="
+				+ rutaArchivoPrimaria + ", rutaArchivoSecundaria=" + rutaArchivoSecundaria + ", rutaArchivoLaboral="
+				+ rutaArchivoLaboral + "]";
+	}
 }

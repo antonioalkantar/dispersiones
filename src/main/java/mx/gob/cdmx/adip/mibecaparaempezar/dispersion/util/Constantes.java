@@ -144,12 +144,15 @@ public final class Constantes {
 	public static final String DESC_SECUNDARIA_ADULTOS_PAD_EXT = "SECUNDARIA ADULTOS";
 	public static final String DESC_PRIMARIA_ADULTOS_PAD_EXT = "PRIMARIA ADULTOS";
 	public static final int ESTATUS_BENEFICIARIO_ACTIVO = 1;
-//	public static final String ORIGEN_PADRON_EXTERNO = "padron externo";
     public static final Integer CODIGO_MUNICIPIO_ZERO = 0;
     public static final Integer ID_MUNICIPIO_FORANEO = 18;
     public static final Integer CODIGO_PAGATODO_NO_ENVIADO = 99;
 	// MOTIVOS NO DISPERSION
 	public static final long TUTOR_NO_APROBADO = 1;
 	public static final long BENEFICIARIO_NO_ACTIVO = 2;
+	public static final long BENEFICIARIO_SIN_NUMERO_CUENTA = 3;
+	public static final long FALLO_SERVICIO_AUTORIDAD_EDUCATIVA = 4;
+	// ESTATUS PADRON
+	public static final String PADRON_EXTERNO_ACTIVO = "ACTIVO";
 
 }

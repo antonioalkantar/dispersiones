@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -91,193 +93,53 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 			for (BeneficiarioSolicitudTutorDTO beneficiario : lstBeneficiarios) {
 
 				// Ejecutar WS
-				MciResponse respuesta = EntidadEducativaSoapClient.consultarCurp(beneficiario.getCurpBeneficiario());
-
-				// Se valida si existen cambios para hacer la actualizacion y guardar la
-				// bitacora de cambios
-				obtenerDiferencias(bitacoraCambios, beneficiario, respuesta);
-
-				// Validar que el beneficiario está vigente.
-				if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_LOCALIZADO)) {
+				MciResponse respuesta = null;
+				try {
+					respuesta = EntidadEducativaSoapClient.consultarCurp(beneficiario.getCurpBeneficiario());
+				} catch (Exception e) {
+					LOGGER.error("Ocurrió un error en la respuesta del WS Autoridad Educativa:", e);
+					// Se pasa la lista de beneficiarios sin dispersion automaticamente porque el WS de Autoridad Educativa falla por alguna razon
+					agregarBeneficiarioQueNoSeDispersaraPorErrorWS(beneficiariosSinDispersion, beneficiario, respuesta);
+					continue;
+				}
+				
+				if (!beneficiario.getEsExterno().booleanValue()) {
+					LOGGER.info("******************* PADRON EXTERNO = FALSE *********************");
+					// Validar que el beneficiario está vigente.
 					if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-							&& beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA) {
-						// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con
-						// dispersion
-						BeneficiarioDispersionDTO beneficiarioDispersion = new BeneficiarioDispersionDTO();
-						beneficiarioDispersion.setDispersion(dispersion); // Dispersion
-						beneficiarioDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
-						beneficiarioDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
-						beneficiarioDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-						beneficiarioDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
-						beneficiarioDispersion.setCatNiveEducativo(
-								new CatNivelEducativoDTO(respuesta.getNivelEducativoFIBIEDCDMXId() != 0 ? respuesta.getNivelEducativoFIBIEDCDMXId() : beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-						beneficiarioDispersion
-								.setCatMontoApoyo(obtenerCatMontoApoyo(respuesta.getNivelEducativoFIBIEDCDMXId() != 0 ? (long) respuesta.getNivelEducativoFIBIEDCDMXId() : beneficiario.getIdNivelEducativo(),
-										dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
-						beneficiarioDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-						if (dispersion.getCatTipoDispersion()
-								.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-							beneficiarioDispersion.setEsComplementaria(true); // Es complementaria
-						} else {
-							beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
-						}
-						beneficiarioDispersion.setIdBeneficiarioSinDispersion(null); // Beneficiario Sin Dispersion
-						beneficiarioDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
-						if (dispersion.getCatTipoDispersion()
-								.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-							beneficiarioDispersion
-									.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
-						}
-
-						beneficiariosConDispersion.add(beneficiarioDispersion);
-
+							&& beneficiario.getIdEstatusTutor() == Constantes.ID_ESTATUS_APROBADA
+							&& !(beneficiario.getNumeroCuenta() == null)) {
+						// Se valida si existen cambios para hacer la actualizacion y guardar la bitacora de cambios
+						obtenerDiferencias(bitacoraCambios, beneficiario, respuesta);
+						// Si el beneficiario esta vigente se pasa a la lista de beneficiarios con dispersion
+						LOGGER.info("******************* BENEFICIARIO ACTIVO Y TUTOR APROBADO - CURP: " + beneficiario.getCurpBeneficiario());
+						agregarBeneficiarioQueSeDispersara(beneficiariosConDispersion, beneficiario, respuesta);
 					} else {
+						LOGGER.info("******************* BENEFICIARIO NO ACTIVO O TUTOR NO APROBADO - CURP: " + beneficiario.getCurpBeneficiario());
 						// Si no esta vigente, se pasa a la lista de beneficiarios sin dispersion
-						BeneficiarioSinDispersionDTO beneficiarioSinDispersion = new BeneficiarioSinDispersionDTO();
-						beneficiarioSinDispersion.setDispersion(dispersion); // Dispersion
-						beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
-						beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
-						beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-						beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
-						beneficiarioSinDispersion.setCatNiveEducativo(
-								new CatNivelEducativoDTO(respuesta.getNivelEducativoFIBIEDCDMXId() != 0 ? respuesta.getNivelEducativoFIBIEDCDMXId() : beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
-						if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-								&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-							beneficiarioSinDispersion.setCatMotivoNoDispersion(
-									new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO));// Motivo No Dispersion
-						} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-								&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-							beneficiarioSinDispersion.setCatMotivoNoDispersion(
-									new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO));// Motivo No Dispersion
-						}
-						beneficiarioSinDispersion
-								.setCatMontoApoyo(obtenerCatMontoApoyo(respuesta.getNivelEducativoFIBIEDCDMXId() != 0 ? (long) respuesta.getNivelEducativoFIBIEDCDMXId() : beneficiario.getIdNivelEducativo(),
-										dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
-						beneficiarioSinDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-						beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
-						beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
-
-						beneficiariosSinDispersion.add(beneficiarioSinDispersion);
+						agregarBeneficiarioQueNoSeDispersara(beneficiariosSinDispersion, beneficiario, respuesta);
 					}
 				} else {
+					LOGGER.info("******************* PADRON EXTERNO = TRUE *********************");
 					// Revisamos en la bd el padron externo
-					List<PadronExternoDTO> lstPadronExternoDTO = padronExternoDAO
-							.buscarPorCurp(beneficiario.getCurpBeneficiario());
+					List<PadronExternoDTO> lstPadronExternoDTO = padronExternoDAO.buscarPorCurp(beneficiario.getCurpBeneficiario());
 					if (lstPadronExternoDTO.size() > 0) {
+						LOGGER.info("******************* SI EXISTE INFORMACION EN BD DEL PADRON *********************");
 						PadronExternoDTO padronExterno = lstPadronExternoDTO.get(0);
-						BeneficiarioSolicitudTutorDTO beneficiarioSolicitudDTO = new BeneficiarioSolicitudTutorDTO();
-						beneficiarioSolicitudDTO.setCurpBeneficiario(beneficiario.getCurpBeneficiario());
-						beneficiarioSolicitudDTO.setCctSolicitud(padronExterno.getCct());
-						beneficiarioSolicitudDTO.setNombreCctSolicitud(padronExterno.getNombreCct());
-						beneficiarioSolicitudDTO.setCalleSolicitud(padronExterno.getCalle());
-						beneficiarioSolicitudDTO.setColoniaSolicitud(padronExterno.getColonia());
-						beneficiarioSolicitudDTO
-								.setAlcaldiaSolicitud(padronExterno.getIdMunicipio() == Constantes.CODIGO_MUNICIPIO_ZERO
-										? (long) Constantes.ID_MUNICIPIO_FORANEO
-										: (long) padronExterno.getIdMunicipio());
-						beneficiarioSolicitudDTO.setCodigoPostalSolicitud(padronExterno.getCodigoPostal());
-						beneficiarioSolicitudDTO.setTurnoSolicitud(padronExterno.getTurno());
-						switch (padronExterno.getNivelEducativo()) {
-						case Constantes.DESC_PREESCOLAR:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_PREESCOLAR);
-							break;
-						case Constantes.DESC_PRIMARIA:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_PRIMARIA);
-							break;
-						case Constantes.DESC_SECUNDARIA:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_SECUNDARIA);
-							break;
-						case Constantes.DESC_PRIMARIA_ADULTOS_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_PRIMARIA_ADULTOS);
-							break;
-						case Constantes.DESC_SECUNDARIA_ADULTOS_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_SECUNDARIA_ADULTOS);
-							break;
-						case Constantes.DESC_CAM_PREESCOLAR_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_CAM_PREESCOLAR);
-							break;
-						case Constantes.DESC_CAM_PRIMARIA_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_CAM_PRIMARIA);
-							break;
-						case Constantes.DESC_CAM_SECUNDARIA_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_CAM_SECUNDARIA);
-							break;
-						case Constantes.DESC_CAM_LABORAL_PAD_EXT:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_CAM_LABORAL);
-							break;
-						default:
-							beneficiarioSolicitudDTO.setIdNivelEducativo((long) Constantes.ID_OTRO);
-							break;
-						}
-						beneficiarioSolicitudDTO.setGradoEscolarSolicitud(padronExterno.getGradoEscolar());
-						if (padronExterno.getEstatus().equals("ACTIVO")) {
-							beneficiarioSolicitudDTO.setIdEstatusTutor((long) Constantes.ESTATUS_BENEFICIARIO_ACTIVO);
-							
-							BeneficiarioDispersionDTO beneficiarioDispersion = new BeneficiarioDispersionDTO();
-							beneficiarioDispersion.setDispersion(dispersion); // Dispersion
-							beneficiarioDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP
-																											// Beneficiario
-							beneficiarioDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
-							beneficiarioDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-							beneficiarioDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo
-																											// Escolar
-							beneficiarioDispersion.setCatNiveEducativo(
-									new CatNivelEducativoDTO(beneficiarioSolicitudDTO.getIdNivelEducativo().intValue())); // Nivel Educativo
-							beneficiarioDispersion
-									.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiarioSolicitudDTO.getIdNivelEducativo(),
-											dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
-							beneficiarioDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-							if (dispersion.getCatTipoDispersion()
-									.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-								beneficiarioDispersion.setEsComplementaria(true); // Es complementaria
-							} else {
-								beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
-							}
-							beneficiarioDispersion.setIdBeneficiarioSinDispersion(null); // Beneficiario Sin Dispersion
-							beneficiarioDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
-							if (dispersion.getCatTipoDispersion()
-									.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
-								beneficiarioDispersion
-										.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
-							}
-
-							beneficiariosConDispersion.add(beneficiarioDispersion);
+						if (padronExterno.getEstatus().equals(Constantes.PADRON_EXTERNO_ACTIVO)) {
+							agregarBeneficiarioQueSeDispersara(beneficiariosConDispersion, beneficiario, respuesta);
 						} else {
-							beneficiarioSolicitudDTO.setIdEstatusTutor((long) Constantes.ID_ESTATUS_BENEFICIARIO_OTRO);
-							
-							BeneficiarioSinDispersionDTO beneficiarioSinDispersion = new BeneficiarioSinDispersionDTO();
-							beneficiarioSinDispersion.setDispersion(dispersion); // Dispersion
-							beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP
-																												// Beneficiario
-							beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
-							beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
-							beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo
-																												// Escolar
-							beneficiarioSinDispersion.setCatNiveEducativo(
-									new CatNivelEducativoDTO(beneficiarioSolicitudDTO.getIdNivelEducativo().intValue())); // Nivel Educativo
-							if (respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-									&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-								beneficiarioSinDispersion.setCatMotivoNoDispersion(
-										new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO));// Motivo No Dispersion
-							} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)
-									&& beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
-								beneficiarioSinDispersion.setCatMotivoNoDispersion(
-										new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO));// Motivo No
-																											// Dispersion
-							}
-							beneficiarioSinDispersion
-									.setCatMontoApoyo(obtenerCatMontoApoyo(beneficiarioSolicitudDTO.getIdNivelEducativo(),
-											dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
-							beneficiarioSinDispersion.setFechaCreacion(new Date()); // Fecha Creacion
-							beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
-							beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
-
-							beneficiariosSinDispersion.add(beneficiarioSinDispersion);
+							agregarBeneficiarioQueNoSeDispersara(beneficiariosSinDispersion, beneficiario, respuesta);
 						}
+					} else {
+						LOGGER.info("******************* NO EXISTE EN BD EL PADRON EXTERNO CON CURP: " + beneficiario.getCurpBeneficiario());
+						agregarBeneficiarioQueNoSeDispersara(beneficiariosSinDispersion, beneficiario, respuesta);
 					}
 				}
 			}
 
+			LOGGER.info("DISPERSADOS: " + beneficiariosConDispersion.size());
+			LOGGER.info("SIN DISPERSAR: " + beneficiariosSinDispersion.size());
 			resultadosConDispersion = beneficiarioDispersionDAO.guardarLista(conn, beneficiariosConDispersion);
 			resultadosSinDispersion = beneficiarioSinDispersionDAO.guardarLista(conn, beneficiariosSinDispersion);
 
@@ -298,10 +160,10 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 					.incrementarAvance(resultadosConDispersion.length + resultadosSinDispersion.length);
 
 			LOGGER.info("El hilo " + Thread.currentThread().getName() + " terminó la ejecución de "
-					+ lstBeneficiarios.size() + " registros Dispersados:" + resultadosConDispersion.length
+					+ lstBeneficiarios.size() + " registros Dispersados: " + resultadosConDispersion.length
 					+ ", No Dispersados: " + resultadosSinDispersion.length);
 		} catch (Exception e) {
-			LOGGER.error("Ocurrió un error en la ejecución del Thread:", e);
+			LOGGER.error("Ocurrió un error en la ejecución del Thread: ", e);
 		} finally {
 			if (conn != null) {
 				try {
@@ -312,6 +174,107 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 			}
 		}
 		return resultadoEjecucionDTO;
+	}
+	
+	private void agregarBeneficiarioQueSeDispersara(List<BeneficiarioDispersionDTO> beneficiariosConDispersion, BeneficiarioSolicitudTutorDTO beneficiario, MciResponse respuesta) {
+		BeneficiarioDispersionDTO beneficiarioDispersion = new BeneficiarioDispersionDTO();
+		beneficiarioDispersion.setDispersion(dispersion); // Dispersion
+		beneficiarioDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
+		beneficiarioDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
+		beneficiarioDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
+		beneficiarioDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
+		beneficiarioDispersion.setCatNiveEducativo(
+				new CatNivelEducativoDTO(respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+		beneficiarioDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(
+				respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? (long) respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo(),
+				dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
+		beneficiarioDispersion.setFechaCreacion(new Date()); // Fecha Creacion
+		if (dispersion.getCatTipoDispersion()
+				.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+			beneficiarioDispersion.setEsComplementaria(true); // Es complementaria
+		} else {
+			beneficiarioDispersion.setEsComplementaria(false); // Es complementaria
+		}
+		beneficiarioDispersion.setIdBeneficiarioSinDispersion(null); // Beneficiario Sin Dispersion
+		beneficiarioDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
+		if (dispersion.getCatTipoDispersion()
+				.getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+			beneficiarioDispersion
+					.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
+		}
+
+		LOGGER.info("SI DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		beneficiariosConDispersion.add(beneficiarioDispersion);
+	}
+	
+	private void agregarBeneficiarioQueNoSeDispersara(List<BeneficiarioSinDispersionDTO> beneficiariosSinDispersion, BeneficiarioSolicitudTutorDTO beneficiario, MciResponse respuesta) {	
+		BeneficiarioSinDispersionDTO beneficiarioSinDispersion = new BeneficiarioSinDispersionDTO();
+		beneficiarioSinDispersion.setDispersion(dispersion); // Dispersion
+		beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
+		beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
+		beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
+		beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
+		beneficiarioSinDispersion.setCatNiveEducativo(
+				new CatNivelEducativoDTO(respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+		if (beneficiario.getNumeroCuenta() == null) {
+			beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_SIN_NUMERO_CUENTA)); // Motivo No Dispersion Sin Cuenta
+		} else if (beneficiario.getIdEstatusTutor() != Constantes.ID_ESTATUS_APROBADA) {
+			beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.TUTOR_NO_APROBADO)); // Motivo No Dispersion Tutor No Aprobado
+		} else if (!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
+			beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.BENEFICIARIO_NO_ACTIVO)); // Motivo No Dispersion Beneficiario No Activo
+		}  
+		beneficiarioSinDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(
+				respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? (long) respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo(),
+				dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
+		beneficiarioSinDispersion.setFechaCreacion(new Date()); // Fecha Creacion
+		beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
+		beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
+
+		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		beneficiariosSinDispersion.add(beneficiarioSinDispersion);
+		
+		if(!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
+			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpTutor() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
+			dispersionDAO.desactivarBeneficiarioSolictud(beneficiario.getIdSolicitud());
+		}
+	}
+	
+	private void agregarBeneficiarioQueNoSeDispersaraPorErrorWS(List<BeneficiarioSinDispersionDTO> beneficiariosSinDispersion, BeneficiarioSolicitudTutorDTO beneficiario, MciResponse respuesta) {	
+		BeneficiarioSinDispersionDTO beneficiarioSinDispersion = new BeneficiarioSinDispersionDTO();
+		beneficiarioSinDispersion.setDispersion(dispersion); // Dispersion
+		beneficiarioSinDispersion.setCurpBeneficiario(beneficiario.getCurpBeneficiario()); // CURP Beneficiario
+		beneficiarioSinDispersion.setCurpTutor(beneficiario.getCurpTutor()); // CURP Tutor
+		beneficiarioSinDispersion.setCatCicloEscolar(dispersion.getCatCicloEscolar()); // Ciclo Escolar
+		beneficiarioSinDispersion.setCatPeriodoEscolar(dispersion.getCatPeriodoEscolar()); // Periodo Escolar
+		beneficiarioSinDispersion.setCatNiveEducativo(
+				new CatNivelEducativoDTO(respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo().intValue())); // Nivel Educativo
+		beneficiarioSinDispersion.setCatMotivoNoDispersion(new CatMotivoNoDispersionDTO(Constantes.FALLO_SERVICIO_AUTORIDAD_EDUCATIVA)); // Motivo No Dispersion Fallo Servicio Autoridad Educativa
+		beneficiarioSinDispersion.setCatMontoApoyo(obtenerCatMontoApoyo(
+				respuesta.getNivelEducativoFIBIEDCDMXId() != 0
+						? (long) respuesta.getNivelEducativoFIBIEDCDMXId()
+						: beneficiario.getIdNivelEducativo(),
+				dispersion.getCatCicloEscolar().getIdCicloEscolar())); // Monto Apoyo
+		beneficiarioSinDispersion.setFechaCreacion(new Date()); // Fecha Creacion
+		beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
+		beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
+
+		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		beneficiariosSinDispersion.add(beneficiarioSinDispersion);
+		
+		if(!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
+			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpTutor() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
+			dispersionDAO.desactivarBeneficiarioSolictud(beneficiario.getIdSolicitud());
+		}
 	}
 
 	private void obtenerDiferencias(List<BitacoraDTO> lstBitacoraCambios,
@@ -328,59 +291,66 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		bitacora.setActualizaCodigoPostal(false);
 
 		// Se comparan los objetos para obtener las diferencias del nivel educativo
-		if (!beneficiarioSolicitud.getIdNivelEducativo().toString()
-				.equals(String.valueOf(entidadEducativa.getNivelEducativoFIBIEDCDMXId()))) {
+		if (!beneficiarioSolicitud.getIdNivelEducativo().toString().equals(String.valueOf(entidadEducativa.getNivelEducativoFIBIEDCDMXId()))) {
 			bitacora.setActualizaNivelEducativo(true);
 			bitacora.setIdNivelEducativoAnterior(beneficiarioSolicitud.getIdNivelEducativo());
+			bitacora.setIdNivelEducativoActualizado((long) entidadEducativa.getNivelEducativoFIBIEDCDMXId());
 		}
 
 		// Se comparan los objetos para obtener las diferencias del cct
 		if (!beneficiarioSolicitud.getCctSolicitud().equals(entidadEducativa.getCct())) {
 			bitacora.setActualizaCct(true);
 			bitacora.setCctAnterior(beneficiarioSolicitud.getCctSolicitud());
+			bitacora.setCctActualizado(entidadEducativa.getCct());
 		}
 
 		// Se comparan los objetos para obtener las diferencias del turno
 		if (!beneficiarioSolicitud.getTurnoSolicitud().equals(String.valueOf(entidadEducativa.getTurnoId()))) {
 			bitacora.setActualizaTurno(true);
 			bitacora.setIdTurnoAnterior(beneficiarioSolicitud.getTurnoSolicitud());
+			bitacora.setIdTurnoActualizado(String.valueOf(entidadEducativa.getTurnoId()));
 		}
 
 		// Se comparan los objetos para obtener las diferencias del grado escolar
-		if (!beneficiarioSolicitud.getGradoEscolarSolicitud().toString()
-				.equals(String.valueOf(entidadEducativa.getGradoEscolar()))) {
+		if (!beneficiarioSolicitud.getGradoEscolarSolicitud().toString().equals(String.valueOf(entidadEducativa.getGradoEscolar()))) {
 			bitacora.setActualizaGradoEscolar(true);
 			bitacora.setGradoEscolarAnterior(beneficiarioSolicitud.getGradoEscolarSolicitud());
+			bitacora.setGradoEscolarActualizado(String.valueOf(entidadEducativa.getGradoEscolar()));
 		}
 
 		// Se comparan los objetos para obtener las diferencias del nombre cct
 		if (!beneficiarioSolicitud.getNombreCctSolicitud().equals(entidadEducativa.getNombreCCT())) {
 			bitacora.setActualizaNombre(true);
 			bitacora.setNombreCctAnterior(beneficiarioSolicitud.getNombreCctSolicitud());
+			bitacora.setNombreCctActualizado(entidadEducativa.getNombreCCT());
 		}
 
 		// Se comparan los objetos para obtener las diferencias de la calle
 		if (!beneficiarioSolicitud.getCalleSolicitud().equals(entidadEducativa.getCalle())) {
 			bitacora.setActualizaCalle(true);
 			bitacora.setCalleCctAnterior(beneficiarioSolicitud.getCalleSolicitud());
+			bitacora.setCalleCctActualizado(entidadEducativa.getCalle());
 		}
 
 		// Se comparan los objetos para obtener las diferencias de la colonia
 		if (!beneficiarioSolicitud.getColoniaSolicitud().equals(entidadEducativa.getColonia())) {
 			bitacora.setActualizaColonia(true);
 			bitacora.setColoniaCctAnterior(beneficiarioSolicitud.getColoniaSolicitud());
+			bitacora.setColoniaCctActualizado(entidadEducativa.getColonia());
 		}
 
 		// Se comparan los objetos para obtener las diferencias de la alcaldia
 		if (!beneficiarioSolicitud.getAlcaldiaSolicitud().toString().equals(entidadEducativa.getAlcaldiaId())) {
 			bitacora.setActualizaAlcaldia(true);
 			bitacora.setIdAlcaldiaCctAnterior(beneficiarioSolicitud.getAlcaldiaSolicitud());
+			bitacora.setIdAlcaldiaCctActualizado(new Long(getIdMunicipioByIdAlcaldiaAEFCM(entidadEducativa.getAlcaldiaId())));
 		}
 
 		// Se comparan los objetos para obtener las diferencias del codigoPostal
 		if (!beneficiarioSolicitud.getCodigoPostalSolicitud().equals(entidadEducativa.getCodigoPostal())) {
 			bitacora.setActualizaCodigoPostal(true);
 			bitacora.setCodigoPostalCctAnterior(beneficiarioSolicitud.getCodigoPostalSolicitud());
+			bitacora.setCodigoPostalCctActualizado(entidadEducativa.getCodigoPostal());
 		}
 
 		bitacora.setIdDispersion(dispersion.getIdDispersion());
@@ -389,6 +359,64 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		bitacora.setFechaRegistro(new Date());
 
 		lstBitacoraCambios.add(bitacora);
+	}
+	
+	public Integer getIdMunicipioByIdAlcaldiaAEFCM(String idAlcaldiaAEFCM) {
+		Integer id = Constantes.INT_VALOR_CERO;		
+		switch(idAlcaldiaAEFCM) {
+			case "013" :
+				id  = 2;
+			      break;
+			case "014" :
+				id  = 3;
+			      break;
+			case "015" :
+				id  = 4;
+			      break;
+			case "016" :
+				id  = 5;
+			      break;
+			case "017" :
+				id  = 6;
+			      break;
+			case "018" :
+				id  = 7;
+			      break;
+			case "019" :
+				id  = 8;
+			      break;
+			case "020" :
+				id  = 9;
+			      break;
+			case "021" :
+				id  = 10;
+			      break;
+			case "022" :
+				id  = 11;
+			      break;
+			case "023" :
+				id  = 12;
+			      break;
+			case "024" :
+				id  = 13;
+			      break;
+			case "025" :
+				id  = 14;
+			      break;
+			case "026" :
+				id  = 15;
+			      break;
+			case "027" :
+				id  = 16;
+			      break;
+			case "028" :
+				id  = 17;
+			      break;
+			default:
+				id  = 18;
+			      break;
+		}
+		return id;
 	}
 
 	private void validaEstatusConexion(Connection conn) throws SQLException {

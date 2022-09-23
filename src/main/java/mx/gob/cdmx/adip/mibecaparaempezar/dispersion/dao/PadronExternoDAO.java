@@ -68,7 +68,7 @@ public class PadronExternoDAO extends IBaseDAO<PadronExternoDTO, Integer> {
 		strQuery.append("pe.estatus as estatus, ");
 		strQuery.append("pe.tipo_escuela as tipoEscuela ");
 		strQuery.append("FROM mibecaparaempezar.padron_externo pe ");
-		strQuery.append("WHERE pe.curp = '").append(curp).append("'");
+		strQuery.append("WHERE pe.curp = '").append(curp).append("';");
 		
 		Connection conn = null;
 		Statement stm = null;
@@ -93,19 +93,19 @@ public class PadronExternoDAO extends IBaseDAO<PadronExternoDTO, Integer> {
 	private PadronExternoDTO mapearPadronExternoDTO(ResultSet rs) throws SQLException {
 		PadronExternoDTO bst = new PadronExternoDTO();
 		bst.setCurp(rs.getString("curp"));
-		bst.setCalle(rs.getString("nombres"));
-		bst.setCodigoPostal(rs.getString("primerApellido"));
-		bst.setColonia(rs.getString("segundoApellido"));
-		bst.setEstatus(rs.getString("cct"));
-		bst.setGradoEscolar(rs.getString("nombreCct"));
-		bst.setIdMunicipio(rs.getInt("calle"));
-		bst.setMunicipio(rs.getString("numeroExterior"));
-		bst.setNivelEducativo(rs.getString("colonia"));
-		bst.setNombreCct(rs.getString("idMunicipio"));
-		bst.setNombres(rs.getString("municipio"));
-		bst.setNumeroExterior(rs.getString("codigoPostal"));
-		bst.setPrimerApellido(rs.getString("turno"));
-		bst.setSegundoApellido(rs.getString("nivelEducativo"));
+		bst.setNombres(rs.getString("nombres"));
+		bst.setPrimerApellido(rs.getString("primerApellido"));
+		bst.setSegundoApellido(rs.getString("segundoApellido"));
+		bst.setCct(rs.getString("cct"));
+		bst.setNombreCct(rs.getString("nombreCct"));
+		bst.setCalle(rs.getString("calle"));
+		bst.setNumeroExterior(rs.getString("numeroExterior"));
+		bst.setColonia(rs.getString("colonia"));
+		bst.setIdMunicipio(rs.getInt("idMunicipio"));
+		bst.setMunicipio(rs.getString("municipio"));
+		bst.setCodigoPostal(rs.getString("codigoPostal"));
+		bst.setTurno(rs.getString("turno"));
+		bst.setNivelEducativo(rs.getString("nivelEducativo"));
 		bst.setGradoEscolar(rs.getString("gradoEscolar"));
 		bst.setEstatus(rs.getString("estatus"));
 		bst.setTipoEscuela(rs.getString("tipoEscuela"));

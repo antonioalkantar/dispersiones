@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +68,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  b.id_beneficiario as idBeneficiario, ");
 		strQuery.append("  b.curp_beneficiario as curpBeneficiario, ");
 		strQuery.append("  s.id_solicitud as idSolicitud, ");
+		strQuery.append("  s.id_estatus_beneficiario as idEstatusBeneficiario, ");
+		strQuery.append("  s.externo as esExterno, ");
 		strQuery.append("  s.cct as cct,  ");
 		strQuery.append("  s.turno as turno,  ");
 		strQuery.append("  s.grado_escolar as gradoEscolar, "); 
@@ -81,7 +85,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  on s.id_solicitud = cbs.id_solicitud ");
 		strQuery.append("INNER JOIN mibecaparaempezar.beneficiario b ");
 		strQuery.append("  on cbs.id_beneficiario = b.id_beneficiario ");
-		strQuery.append("INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
+		strQuery.append("LEFT JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus ce ");
 		strQuery.append("  on ce.id_estatus = t.id_estatus  ");
@@ -130,6 +134,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  b1.id_beneficiario as idBeneficiario, ");
 		strQuery.append("  b1.curp_beneficiario as curpBeneficiario, ");
 		strQuery.append("  s.id_solicitud as idSolicitud, ");
+		strQuery.append("  s.id_estatus_beneficiario as idEstatusBeneficiario, ");
+		strQuery.append("  s.externo as esExterno, ");
 		strQuery.append("  s.cct as cct, ");
 		strQuery.append("  s.turno as turno, ");
 		strQuery.append("  s.grado_escolar as gradoEscolar, ");
@@ -153,7 +159,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append(" ) b1 on b1.id_beneficiario = cbs.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.beneficiario_sin_dispersion bsda ");
 		strQuery.append("  on bsda.curp_beneficiario = b1.curp_beneficiario ");
-		strQuery.append("INNER JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
+		strQuery.append("LEFT JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b1.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus ce ");
 		strQuery.append("  on ce.id_estatus = t.id_estatus  ");
@@ -251,6 +257,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		bst.setIdBeneficiario(rs.getLong("idBeneficiario"));
 		bst.setCurpBeneficiario(rs.getString("curpBeneficiario"));
 		bst.setIdSolicitud(rs.getLong("idSolicitud"));
+		bst.setIdEstatusBeneficiario(rs.getLong("idEstatusBeneficiario"));
+		bst.setEsExterno(rs.getBoolean("esExterno"));
 		bst.setCctSolicitud(rs.getString("cct"));
 		bst.setTurnoSolicitud(rs.getString("turno"));
 		bst.setGradoEscolarSolicitud(rs.getString("gradoEscolar"));

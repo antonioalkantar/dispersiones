@@ -9,22 +9,31 @@ public class BitacoraDTO {
 	private Long idSolicitud;
 	private Boolean actualizaCct;
 	private String cctAnterior;
+	private String cctActualizado;
 	private Boolean actualizaNombre;
 	private String nombreCctAnterior;
+	private String nombreCctActualizado;
 	private Boolean actualizaCalle;
 	private String calleCctAnterior;
+	private String calleCctActualizado;
 	private Boolean actualizaColonia;
 	private String coloniaCctAnterior;
+	private String coloniaCctActualizado;
 	private Boolean actualizaCodigoPostal;
 	private String codigoPostalCctAnterior;
+	private String codigoPostalCctActualizado;
 	private Boolean actualizaAlcaldia;
 	private Long idAlcaldiaCctAnterior;
+	private Long idAlcaldiaCctActualizado;
 	private Boolean actualizaTurno;
 	private String idTurnoAnterior;
+	private String idTurnoActualizado;
 	private Boolean actualizaNivelEducativo;
 	private Long idNivelEducativoAnterior;
+	private Long idNivelEducativoActualizado;
 	private Boolean actualizaGradoEscolar;
 	private String gradoEscolarAnterior;
+	private String gradoEscolarActualizado;
 	private Date fechaRegistro;
 
 	public Long getIdDispersion() {
@@ -67,6 +76,14 @@ public class BitacoraDTO {
 		this.cctAnterior = cctAnterior;
 	}
 
+	public String getCctActualizado() {
+		return cctActualizado;
+	}
+
+	public void setCctActualizado(String cctActualizado) {
+		this.cctActualizado = cctActualizado;
+	}
+
 	public Boolean getActualizaNombre() {
 		return actualizaNombre;
 	}
@@ -81,6 +98,14 @@ public class BitacoraDTO {
 
 	public void setNombreCctAnterior(String nombreCctAnterior) {
 		this.nombreCctAnterior = nombreCctAnterior;
+	}
+
+	public String getNombreCctActualizado() {
+		return nombreCctActualizado;
+	}
+
+	public void setNombreCctActualizado(String nombreCctActualizado) {
+		this.nombreCctActualizado = nombreCctActualizado;
 	}
 
 	public Boolean getActualizaCalle() {
@@ -99,6 +124,14 @@ public class BitacoraDTO {
 		this.calleCctAnterior = calleCctAnterior;
 	}
 
+	public String getCalleCctActualizado() {
+		return calleCctActualizado;
+	}
+
+	public void setCalleCctActualizado(String calleCctActualizado) {
+		this.calleCctActualizado = calleCctActualizado;
+	}
+
 	public Boolean getActualizaColonia() {
 		return actualizaColonia;
 	}
@@ -113,6 +146,14 @@ public class BitacoraDTO {
 
 	public void setColoniaCctAnterior(String coloniaCctAnterior) {
 		this.coloniaCctAnterior = coloniaCctAnterior;
+	}
+
+	public String getColoniaCctActualizado() {
+		return coloniaCctActualizado;
+	}
+
+	public void setColoniaCctActualizado(String coloniaCctActualizado) {
+		this.coloniaCctActualizado = coloniaCctActualizado;
 	}
 
 	public Boolean getActualizaCodigoPostal() {
@@ -131,6 +172,14 @@ public class BitacoraDTO {
 		this.codigoPostalCctAnterior = codigoPostalCctAnterior;
 	}
 
+	public String getCodigoPostalCctActualizado() {
+		return codigoPostalCctActualizado;
+	}
+
+	public void setCodigoPostalCctActualizado(String codigoPostalCctActualizado) {
+		this.codigoPostalCctActualizado = codigoPostalCctActualizado;
+	}
+
 	public Boolean getActualizaAlcaldia() {
 		return actualizaAlcaldia;
 	}
@@ -145,6 +194,14 @@ public class BitacoraDTO {
 
 	public void setIdAlcaldiaCctAnterior(Long idAlcaldiaCctAnterior) {
 		this.idAlcaldiaCctAnterior = idAlcaldiaCctAnterior;
+	}
+
+	public Long getIdAlcaldiaCctActualizado() {
+		return idAlcaldiaCctActualizado;
+	}
+
+	public void setIdAlcaldiaCctActualizado(Long idAlcaldiaCctActualizado) {
+		this.idAlcaldiaCctActualizado = idAlcaldiaCctActualizado;
 	}
 
 	public Boolean getActualizaTurno() {
@@ -163,6 +220,14 @@ public class BitacoraDTO {
 		this.idTurnoAnterior = idTurnoAnterior;
 	}
 
+	public String getIdTurnoActualizado() {
+		return idTurnoActualizado;
+	}
+
+	public void setIdTurnoActualizado(String idTurnoActualizado) {
+		this.idTurnoActualizado = idTurnoActualizado;
+	}
+
 	public Boolean getActualizaNivelEducativo() {
 		return actualizaNivelEducativo;
 	}
@@ -179,6 +244,14 @@ public class BitacoraDTO {
 		this.idNivelEducativoAnterior = idNivelEducativoAnterior;
 	}
 
+	public Long getIdNivelEducativoActualizado() {
+		return idNivelEducativoActualizado;
+	}
+
+	public void setIdNivelEducativoActualizado(Long idNivelEducativoActualizado) {
+		this.idNivelEducativoActualizado = idNivelEducativoActualizado;
+	}
+
 	public Boolean getActualizaGradoEscolar() {
 		return actualizaGradoEscolar;
 	}
@@ -193,6 +266,14 @@ public class BitacoraDTO {
 
 	public void setGradoEscolarAnterior(String gradoEscolarAnterior) {
 		this.gradoEscolarAnterior = gradoEscolarAnterior;
+	}
+
+	public String getGradoEscolarActualizado() {
+		return gradoEscolarActualizado;
+	}
+
+	public void setGradoEscolarActualizado(String gradoEscolarActualizado) {
+		this.gradoEscolarActualizado = gradoEscolarActualizado;
 	}
 
 	public Date getFechaRegistro() {

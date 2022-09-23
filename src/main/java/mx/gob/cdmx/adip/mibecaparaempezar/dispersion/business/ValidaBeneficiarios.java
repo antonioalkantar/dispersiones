@@ -106,7 +106,7 @@ public class ValidaBeneficiarios {
 					// 3.3 Se obtiene la ultima dispersion para procesar sus beneficiarios no dispersados
 					DispersionDTO ultimaDispersion = dispersionDAO.obtenerUltimaDispersionPorFechaConclusion(dispersionDTO);
 					if(ultimaDispersion != null) {
-						// 3.4 Se obtienen los registros de beneficiarios
+						// 3.4 Se obtienen los registros de beneficiarios sin dispersar
 						lstBeneficiariosNoDispersados = beneficiarioDAO.buscarBeneficiariosActivosComplementaria(ultimaDispersion.getIdDispersion());
 					}
 					LOGGER.info("Total Registros a procesar:" + lstBeneficiarios.size());
@@ -142,8 +142,14 @@ public class ValidaBeneficiarios {
 				// 7. Se divide la carga del archivos en hilos de ejecución (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
 				if(lstBeneficiariosNoDispersados != null && lstBeneficiariosNoDispersados.size() > 0) {
-					List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiariosNoDispersados = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO);
+					LOGGER.info("************ SI SE PROCESAN CORRECTAMENTE **************** ");
+					List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiariosNoDispersados = dividirCarga(dispersionDTO, lstBeneficiariosNoDispersados, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO);
 					LOGGER.info("Se prepararon " + lstHilosBeneficiariosNoDispersados.size() + " hilos de ejecución.");
+					// 7.1. Se invocan los diversos hilos de ejecución para realizar los inserts de manera paralela
+					LOGGER.info("Procesadores disponibles para multithreading: " + Runtime.getRuntime().availableProcessors());
+					LOGGER.info("Invocando hilos de ejecución...");
+					executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+					executor.invokeAll(lstHilosBeneficiariosNoDispersados);
 				}
 
 				LOGGER.info("*********************************************************************");
@@ -167,6 +173,7 @@ public class ValidaBeneficiarios {
 				mapaReportesNivelAcademicoConDispersion.put("secundaria", new ArrayList<>());
 				mapaReportesNivelAcademicoConDispersion.put("laboral", new ArrayList<>());
 				
+				LOGGER.info("***** IdDispersion Busqueda Reportes: " + dispersionDTO.getIdDispersion());
 				List<BeneficiarioDispersionReporteDTO> lstBeneficiariosDispersionReporte = beneficiarioDAO.consultarBeneficiariosDispersadosPorIdDispersion(dispersionDTO);
 				for (BeneficiarioDispersionReporteDTO beneficiarioDispersion : lstBeneficiariosDispersionReporte) {
 					asignarListaReportesDispersion(beneficiarioDispersion, mapaReportesNivelAcademicoConDispersion);
@@ -186,9 +193,6 @@ public class ValidaBeneficiarios {
 				dispersionDAO.actualizarFechaConcluido(dispersionDTO.getIdDispersion(), new Date());
 			} catch (Exception e) {
 				LOGGER.error("Ocurrió un error al procesar la dispersión con ID:" + dispersionDTO.getIdDispersion() + ":", e);
-				// En caso de algún error en el archivo, se cambia su estatus a "Error"
-				// dispersionDAO.actualizarEstatus(dispersionDTO.getIdDispersion(),
-				// CatEstatusDispersionDTO.ID_ESTATUS_DISPERSION_ERROR);
 			} finally {
 				executor.shutdown(); // Al final se cierra el ExecutorService
 			}
@@ -232,7 +236,7 @@ public class ValidaBeneficiarios {
 	private List<String[]> mapearDispersion(List<BeneficiarioDispersionReporteDTO> lstBeneficiariosConDispersion) {
 		List<String[]> datosReporte = new ArrayList<String[]>();
 		for (BeneficiarioDispersionReporteDTO registroDispersionReporte : lstBeneficiariosConDispersion) {
-			datosReporte.add(new String[] { registroDispersionReporte.getCurpTutor(), registroDispersionReporte.getNumeroCuenta(), registroDispersionReporte.getMonto().toString() });
+			datosReporte.add(new String[] { registroDispersionReporte.getCurpBeneficiario(), registroDispersionReporte.getNumeroCuenta(), registroDispersionReporte.getMonto().toString() });
 		}
 		return datosReporte;
 	}
@@ -254,7 +258,7 @@ public class ValidaBeneficiarios {
 			BeneficiarioDispersionDAO beneficiarioDispersionDAO,
 			BeneficiarioSinDispersionDAO beneficiarioSinDispersionDAO, DispersionDAO dispersionDAO, BitacoraDAO bitacoraDAO, PadronExternoDAO padronExternoDAO) {
 		List<Callable<ResultadoEjecucionDTO>> lstThreads = new ArrayList<>();
-		int tamanioSublistas = 10; // 100 registros a procesar por thread
+		int tamanioSublistas = 100; // 100 registros a procesar por thread
 		List<List<BeneficiarioSolicitudTutorDTO>> lstCargaDividida = ListUtils.partition(lstBeneficiarios,
 				tamanioSublistas);
 

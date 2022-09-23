@@ -11,6 +11,8 @@ public class BeneficiarioSolicitudTutorDTO {
 	private Long idBeneficiario;
 	private String curpBeneficiario;
 	private Long idSolicitud;
+	private Long idEstatusBeneficiario;
+	private Boolean esExterno;
 	private String cctSolicitud;
 	private String turnoSolicitud;
 	private String gradoEscolarSolicitud;
@@ -163,6 +165,22 @@ public class BeneficiarioSolicitudTutorDTO {
 
 	public void setIdSolicitud(Long idSolicitud) {
 		this.idSolicitud = idSolicitud;
+	}
+
+	public Boolean getEsExterno() {
+		return esExterno;
+	}
+
+	public void setEsExterno(Boolean esExterno) {
+		this.esExterno = esExterno;
+	}
+
+	public Long getIdEstatusBeneficiario() {
+		return idEstatusBeneficiario;
+	}
+
+	public void setIdEstatusBeneficiario(Long idEstatusBeneficiario) {
+		this.idEstatusBeneficiario = idEstatusBeneficiario;
 	}
 	
 }

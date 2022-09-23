@@ -310,6 +310,32 @@ public class DispersionDAO extends IBaseDAO<DispersionDTO, Integer> {
 			PostgresDatasource.getInstance().close(null, pstm, conn);
 		}
 	}
+	
+	public void desactivarBeneficiarioSolictud(long idSolicitud) {
+		StringBuilder strQuery = new StringBuilder();
+
+		strQuery.append("UPDATE mibecaparaempezar.solicitud ");
+		strQuery.append("SET ");
+		strQuery.append("  id_estatus_beneficiario = 2 ");
+		strQuery.append(" WHERE ");
+		strQuery.append("  id_solicitud = ?");
+
+		Connection conn = null;
+		PreparedStatement pstm = null;
+		try {
+			conn = PostgresDatasource.getInstance().getConnection();
+			pstm = conn.prepareStatement(strQuery.toString());
+			pstm.setLong(1, idSolicitud);
+			int registrosAfectados = pstm.executeUpdate();
+			if (registrosAfectados < 1) {
+				throw new IllegalArgumentException("El idSolicitud" + idSolicitud + " no actualizó correctamente el estatus [" + strQuery.toString() + "]");
+			}
+		} catch (SQLException e1) {
+			LOGGER.error( "Ocurrió un error al actualizar el idSolicitud con el DML [" + strQuery.toString() + "]:", e1);
+		} finally {
+			PostgresDatasource.getInstance().close(null, pstm, conn);
+		}
+	}
 
 	private DispersionDTO mapearDispersionDTO(ResultSet rs) throws SQLException {
 		DispersionDTO dispersion = new DispersionDTO();

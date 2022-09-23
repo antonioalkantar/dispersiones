@@ -96,31 +96,37 @@ public class EntidadEducativaSoapClient {
 	}
 
 	public static void main(String[] args) throws IOException {
-		MciResponse mciEntidadEducativaResponse = 
-				EntidadEducativaSoapClient.consultarCurp("AAAA120505HDFLRNA7");
-		System.out.println("servicioEducativo ID "+mciEntidadEducativaResponse.getServicioEducativoId());
-		System.out.println("servicioEducativo "+mciEntidadEducativaResponse.getServicioEducativo());
-		System.out.println("NIVEL ID "+mciEntidadEducativaResponse.getNivelEducativoId());
-		System.out.println("NIVEL EDUCATIVO: "+mciEntidadEducativaResponse.getNivelEducativo());		
-		System.out.println("Nivel educativo ADIP: "+ mciEntidadEducativaResponse.getNivelEducativoFIBIEDCDMX());
-		System.out.println("ID Nivel educativo ADIP: "+ mciEntidadEducativaResponse.getNivelEducativoFIBIEDCDMXId());
-//		System.out.println(mciEntidadEducativaResponse.getTipoEscuela());
-//		
-		System.out.println(mciEntidadEducativaResponse.getEstatus());
-//		
-//		System.out.println(mciEntidadEducativaResponse.getGradoEscolar());
-//		System.out.println(mciEntidadEducativaResponse.getNivelEducativo());
-//		System.out.println(mciEntidadEducativaResponse.getTurno());
-//		System.out.println(mciEntidadEducativaResponse.getNombreCCT());
-//		
-//		System.out.println(mciEntidadEducativaResponse.getAlcaldia());
-//		System.out.println(mciEntidadEducativaResponse.getCodigoPostal());
-//		System.out.println(mciEntidadEducativaResponse.getColonia());
-//		System.out.println(mciEntidadEducativaResponse.getCalle());
-//		System.out.println(mciEntidadEducativaResponse.getNumeroExterior());
-		
-//		System.out.println(mciEntidadEducativaResponse.getCct());
-//		System.out.println(mciEntidadEducativaResponse.getCicloEscolar());
+		try {
+			MciResponse mciEntidadEducativaResponse = 
+					EntidadEducativaSoapClient.consultarCurp("TECL080404MMCLNZA4");
+			System.out.println("servicioEducativo ID "+mciEntidadEducativaResponse.getServicioEducativoId());
+			System.out.println("servicioEducativo "+mciEntidadEducativaResponse.getServicioEducativo());
+			System.out.println("NIVEL ID "+mciEntidadEducativaResponse.getNivelEducativoId());
+			System.out.println("NIVEL EDUCATIVO: "+mciEntidadEducativaResponse.getNivelEducativo());		
+			System.out.println("Nivel educativo ADIP: "+ mciEntidadEducativaResponse.getNivelEducativoFIBIEDCDMX());
+			System.out.println("ID Nivel educativo ADIP: "+ mciEntidadEducativaResponse.getNivelEducativoFIBIEDCDMXId());
+//			System.out.println(mciEntidadEducativaResponse.getTipoEscuela());
+//			
+			System.out.println(mciEntidadEducativaResponse.getEstatus());
+//			
+//			System.out.println(mciEntidadEducativaResponse.getGradoEscolar());
+//			System.out.println(mciEntidadEducativaResponse.getNivelEducativo());
+//			System.out.println(mciEntidadEducativaResponse.getTurno());
+//			System.out.println(mciEntidadEducativaResponse.getNombreCCT());
+//			
+			System.out.println("Alcaldia: " + mciEntidadEducativaResponse.getAlcaldia());
+			System.out.println("Id Alcaldia: " + mciEntidadEducativaResponse.getAlcaldiaId());
+			System.out.println("Id Alcaldia Parse Long: " + Long.parseLong(mciEntidadEducativaResponse.getAlcaldiaId()));
+//			System.out.println(mciEntidadEducativaResponse.getCodigoPostal());
+//			System.out.println(mciEntidadEducativaResponse.getColonia());
+//			System.out.println(mciEntidadEducativaResponse.getCalle());
+//			System.out.println(mciEntidadEducativaResponse.getNumeroExterior());
+			
+//			System.out.println(mciEntidadEducativaResponse.getCct());
+//			System.out.println(mciEntidadEducativaResponse.getCicloEscolar());
+		} catch (Exception e) {
+			System.out.println("ERROR: " + e);
+		}
 	}
 
 }

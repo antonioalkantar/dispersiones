@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.client.MciResponse;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.db.PostgresDatasource;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BeneficiarioDispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.BitacoraDTO;
@@ -142,39 +143,39 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 			strQuery.append("UPDATE mibecaparaempezar.solicitud ");
 			strQuery.append("SET ");
 			if (bitacora.getActualizaNivelEducativo()) {
-				strQuery.append("id_nivel_educativo = ").append(bitacora.getIdNivelEducativoAnterior()).append(", ");
+				strQuery.append("id_nivel_educativo = ").append(bitacora.getIdNivelEducativoActualizado()).append(", ");
 				++contador; // 1
 			}
 			if (bitacora.getActualizaCct()) {
-				strQuery.append("cct = '").append(bitacora.getCctAnterior()).append("', ");
+				strQuery.append("cct = '").append(bitacora.getCctActualizado()).append("', ");
 				++contador; // 2
 			}
 			if (bitacora.getActualizaTurno()) {
-				strQuery.append("turno = '").append(bitacora.getIdTurnoAnterior()).append("', ");
+				strQuery.append("turno = '").append(bitacora.getIdTurnoActualizado()).append("', ");
 				++contador; // 3
 			}
 			if (bitacora.getActualizaGradoEscolar()) {
-				strQuery.append("grado_escolar = '").append(bitacora.getGradoEscolarAnterior()).append("', ");
+				strQuery.append("grado_escolar = '").append(bitacora.getGradoEscolarActualizado()).append("', ");
 				++contador; // 4
 			}
 			if (bitacora.getActualizaNombre()) {
-				strQuery.append("nombre = '").append(bitacora.getNombreCctAnterior()).append("', ");
+				strQuery.append("nombre = '").append(bitacora.getNombreCctActualizado()).append("', ");
 				++contador; // 5
 			}
 			if (bitacora.getActualizaCalle()) {
-				strQuery.append("calle = '").append(bitacora.getCalleCctAnterior()).append("', ");
+				strQuery.append("calle = '").append(bitacora.getCalleCctActualizado()).append("', ");
 				++contador; // 6
 			}
 			if (bitacora.getActualizaColonia()) {
-				strQuery.append("colonia = '").append(bitacora.getColoniaCctAnterior()).append("', ");
+				strQuery.append("colonia = '").append(bitacora.getColoniaCctActualizado()).append("', ");
 				++contador; // 7
 			}
 			if (bitacora.getActualizaAlcaldia()) {
-				strQuery.append("id_alcaldia = ").append(bitacora.getIdAlcaldiaCctAnterior()).append(", ");
+				strQuery.append("id_alcaldia = ").append(bitacora.getIdAlcaldiaCctActualizado()).append(", ");
 				++contador; // 8
 			}
 			if (bitacora.getActualizaCodigoPostal()) {
-				strQuery.append("codigopostal = '").append(bitacora.getCodigoPostalCctAnterior()).append("', ");
+				strQuery.append("codigopostal = '").append(bitacora.getCodigoPostalCctActualizado()).append("', ");
 				++contador; // 9
 			}
 			strQuery.append("WHERE ");

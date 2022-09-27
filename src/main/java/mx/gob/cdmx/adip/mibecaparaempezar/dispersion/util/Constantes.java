@@ -61,7 +61,9 @@ public final class Constantes {
 	public static final int ID_ESTATUS_BENEFICIARIO = 7;
 	public static final int ID_ESTATUS_PENDIENTE_VALIDACION = 2;
 	public static final int ID_ESTATUS_CONCLUIDO = 3;
+	public static final Long STATUS_BENEFICIARIO_ACTIVO = 1l;
 	public static final String BENEFICIARIO_ACTIVO = "Activo";
+	public static final String BENEFICIARIO_INACTIVO = "Inactivo";
 	public static final String BENEFICIARIO_ESCUELA_PRIVADA = "privada";
 	public static final String BENEFICIARIO_NO_LOCALIZADO = "localizado";
 	public static final String BENEFICIARIO_LOCALIZADO = "No localizado";

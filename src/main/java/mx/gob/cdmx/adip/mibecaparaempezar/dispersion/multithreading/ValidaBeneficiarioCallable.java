@@ -207,7 +207,7 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 					.setIdBeneficiarioSinDispersion(beneficiario.getIdBeneficiarioSinDispersion());
 		}
 
-		LOGGER.info("SI DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		LOGGER.info("SI DISPERSAMOS AL CURP: " + beneficiario.getCurpBeneficiario());
 		beneficiariosConDispersion.add(beneficiarioDispersion);
 	}
 	
@@ -238,11 +238,11 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
 		beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
 
-		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpBeneficiario());
 		beneficiariosSinDispersion.add(beneficiarioSinDispersion);
 		
 		if(!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
-			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpTutor() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
+			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpBeneficiario() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
 			dispersionDAO.desactivarBeneficiarioSolictud(beneficiario.getIdSolicitud());
 		}
 	}
@@ -268,11 +268,11 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		beneficiarioSinDispersion.setIdBeneficiarioDispersion(null); // Beneficiario Dispersion
 		beneficiarioSinDispersion.setNumeroCuenta(beneficiario.getNumeroCuenta());
 
-		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpTutor());
+		LOGGER.info("NO DISPERSAMOS AL CURP: " + beneficiario.getCurpBeneficiario());
 		beneficiariosSinDispersion.add(beneficiarioSinDispersion);
 		
 		if(!respuesta.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
-			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpTutor() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
+			LOGGER.info("SE INACTIVA AL CURP: " + beneficiario.getCurpBeneficiario() + " CON ID SOLICITUD: " + beneficiario.getIdSolicitud());
 			dispersionDAO.desactivarBeneficiarioSolictud(beneficiario.getIdSolicitud());
 		}
 	}
@@ -289,6 +289,16 @@ public class ValidaBeneficiarioCallable implements Callable<ResultadoEjecucionDT
 		bitacora.setActualizaNivelEducativo(false);
 		bitacora.setActualizaGradoEscolar(false);
 		bitacora.setActualizaCodigoPostal(false);
+		bitacora.setActualizaEstatus(false);
+		
+		// Se comparan los objetos para obtener las diferencias del estatus del beneficiario
+		if (beneficiarioSolicitud.getIdEstatusBeneficiario() != Constantes.STATUS_BENEFICIARIO_ACTIVO) {
+			if (entidadEducativa.getEstatus().equals(Constantes.BENEFICIARIO_ACTIVO)) {
+			bitacora.setActualizaEstatus(true);
+			bitacora.setEstatusBeneficiarioAnterior(Constantes.BENEFICIARIO_INACTIVO);
+			bitacora.setEstatusBeneficiarioActualizado(entidadEducativa.getEstatus());
+			}
+		}
 
 		// Se comparan los objetos para obtener las diferencias del nivel educativo
 		if (!beneficiarioSolicitud.getIdNivelEducativo().toString().equals(String.valueOf(entidadEducativa.getNivelEducativoFIBIEDCDMXId()))) {

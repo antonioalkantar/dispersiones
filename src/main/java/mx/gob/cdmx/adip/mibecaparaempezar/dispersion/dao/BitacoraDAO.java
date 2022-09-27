@@ -69,9 +69,10 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 		strInsert.append("id_turno_anterior, ");
 		strInsert.append("id_nivel_educativo_anterior, ");
 		strInsert.append("grado_escolar_anterior, ");
+		strInsert.append("estatus_beneficiario_anterior, ");
 		strInsert.append("fecha_registro ");
 		strInsert.append(") ");
-		strInsert.append("VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
+		strInsert.append("VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
 
 		pstmtBitacora = conn.prepareStatement(strInsert.toString());
 
@@ -119,9 +120,12 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 
 			// GradoEscolarAnterior
 			pstmtBitacora.setString(12, lstBitacora.get(i).getActualizaGradoEscolar() ? lstBitacora.get(i).getGradoEscolarAnterior() : null);
+			
+			//EstatusBeneficiario
+			pstmtBitacora.setString(13, lstBitacora.get(i).getActualizaEstatus() ? lstBitacora.get(i).getEstatusBeneficiarioAnterior() : null);
 
 			// FechaRegistro
-			pstmtBitacora.setTimestamp(13, new Timestamp(lstBitacora.get(i).getFechaRegistro().getTime()));
+			pstmtBitacora.setTimestamp(14, new Timestamp(lstBitacora.get(i).getFechaRegistro().getTime()));
 
 			pstmtBitacora.addBatch();
 		}
@@ -177,6 +181,10 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 			if (bitacora.getActualizaCodigoPostal()) {
 				strQuery.append("codigopostal = '").append(bitacora.getCodigoPostalCctActualizado()).append("', ");
 				++contador; // 9
+			}
+			if (bitacora.getActualizaEstatus()) {
+				strQuery.append("id_estatus_beneficiario = 1 ").append(", ");
+				++contador; // 10
 			}
 			strQuery.append("WHERE ");
 			strQuery.append(" id_solicitud = ").append(bitacora.getIdSolicitud());

@@ -34,6 +34,9 @@ public class BitacoraDTO {
 	private Boolean actualizaGradoEscolar;
 	private String gradoEscolarAnterior;
 	private String gradoEscolarActualizado;
+	private Boolean actualizaEstatus;
+	private String estatusBeneficiarioAnterior;
+	private String estatusBeneficiarioActualizado;
 	private Date fechaRegistro;
 
 	public Long getIdDispersion() {
@@ -274,6 +277,30 @@ public class BitacoraDTO {
 
 	public void setGradoEscolarActualizado(String gradoEscolarActualizado) {
 		this.gradoEscolarActualizado = gradoEscolarActualizado;
+	}
+
+	public Boolean getActualizaEstatus() {
+		return actualizaEstatus;
+	}
+
+	public void setActualizaEstatus(Boolean actualizaEstatus) {
+		this.actualizaEstatus = actualizaEstatus;
+	}
+
+	public String getEstatusBeneficiarioAnterior() {
+		return estatusBeneficiarioAnterior;
+	}
+
+	public void setEstatusBeneficiarioAnterior(String estatusBeneficiarioAnterior) {
+		this.estatusBeneficiarioAnterior = estatusBeneficiarioAnterior;
+	}
+
+	public String getEstatusBeneficiarioActualizado() {
+		return estatusBeneficiarioActualizado;
+	}
+
+	public void setEstatusBeneficiarioActualizado(String estatusBeneficiarioActualizado) {
+		this.estatusBeneficiarioActualizado = estatusBeneficiarioActualizado;
 	}
 
 	public Date getFechaRegistro() {

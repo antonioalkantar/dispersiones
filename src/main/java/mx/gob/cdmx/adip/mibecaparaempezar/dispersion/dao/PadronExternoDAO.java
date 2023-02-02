@@ -83,7 +83,7 @@ public class PadronExternoDAO extends IBaseDAO<PadronExternoDTO, Integer> {
 				lstPadronExternoDTO.add(mapearPadronExternoDTO(rs));
 			}
 		} catch (SQLException e1) {
-			LOGGER.error("Ocurrió un error al consultar dispersiones con el query [" + strQuery.toString() + "]:", e1);
+			LOGGER.error("Ocurrio un error al consultar dispersiones con el query [" + strQuery.toString() + "]:", e1);
 		} finally {
 			PostgresDatasource.getInstance().close(rs, stm, conn);
 		}

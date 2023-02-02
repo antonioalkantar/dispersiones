@@ -92,7 +92,7 @@ public class BeneficiarioDispersionDAO extends IBaseDAO<BeneficiarioDispersionDT
 			pstmtConDispersion.setTimestamp(7, new Timestamp(beneficiariosConDispersiones.get(i).getFechaCreacion().getTime()));
 			
 			// Es Complementaria
-			pstmtConDispersion.setBoolean(8, false);
+			pstmtConDispersion.setBoolean(8, beneficiariosConDispersiones.get(i).getEsComplementaria().booleanValue());
 			
 			pstmtConDispersion.addBatch();
 		}

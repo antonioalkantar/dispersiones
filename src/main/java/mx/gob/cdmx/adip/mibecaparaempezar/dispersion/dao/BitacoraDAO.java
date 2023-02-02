@@ -87,42 +87,42 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 			pstmtBitacora.setLong(3, lstBitacora.get(i).getIdDispersion());
 
 			// CctAnterior
-			pstmtBitacora.setString(4, lstBitacora.get(i).getActualizaCct() ? lstBitacora.get(i).getCctAnterior() : null);
+			pstmtBitacora.setString(4, lstBitacora.get(i).getActualizaCct().booleanValue() ? lstBitacora.get(i).getCctAnterior() : null);
 
 			// NombreCctAnterior
-			pstmtBitacora.setString(5, lstBitacora.get(i).getActualizaNombre() ? lstBitacora.get(i).getNombreCctAnterior() : null);
+			pstmtBitacora.setString(5, lstBitacora.get(i).getActualizaNombre().booleanValue() ? lstBitacora.get(i).getNombreCctAnterior() : null);
 
 			// CalleCctAnterior
-			pstmtBitacora.setString(6, lstBitacora.get(i).getActualizaCalle() ? lstBitacora.get(i).getCalleCctAnterior() : null);
+			pstmtBitacora.setString(6, lstBitacora.get(i).getActualizaCalle().booleanValue() ? lstBitacora.get(i).getCalleCctAnterior() : null);
 
 			// ColoniaCctAnterior
-			pstmtBitacora.setString(7, lstBitacora.get(i).getActualizaColonia() ? lstBitacora.get(i).getColoniaCctAnterior() : null);
+			pstmtBitacora.setString(7, lstBitacora.get(i).getActualizaColonia().booleanValue() ? lstBitacora.get(i).getColoniaCctAnterior() : null);
 
 			// CodigoPostalCctAnterior
-			pstmtBitacora.setString(8, lstBitacora.get(i).getActualizaCodigoPostal() ? lstBitacora.get(i).getCodigoPostalCctAnterior() : null);
+			pstmtBitacora.setString(8, lstBitacora.get(i).getActualizaCodigoPostal().booleanValue() ? lstBitacora.get(i).getCodigoPostalCctAnterior() : null);
 
 			// IdAlcaldiaCctAnterior
-			if(lstBitacora.get(i).getActualizaAlcaldia()) {
+			if(lstBitacora.get(i).getActualizaAlcaldia().booleanValue()) {
 				pstmtBitacora.setLong(9, lstBitacora.get(i).getIdAlcaldiaCctAnterior());
 			} else {
 				pstmtBitacora.setNull(9, Types.BIGINT);
 			}
 
 			// IdTurnoAnterior
-			pstmtBitacora.setString(10, lstBitacora.get(i).getActualizaTurno() ? lstBitacora.get(i).getIdTurnoAnterior() : null);
+			pstmtBitacora.setString(10, lstBitacora.get(i).getActualizaTurno().booleanValue() ? lstBitacora.get(i).getIdTurnoAnterior() : null);
 
 			// IdNivelEducativoAnterior
-			if(lstBitacora.get(i).getActualizaNivelEducativo()) {
+			if(lstBitacora.get(i).getActualizaNivelEducativo().booleanValue()) {
 				pstmtBitacora.setLong(11, lstBitacora.get(i).getIdNivelEducativoAnterior());
 			} else {
 				pstmtBitacora.setNull(11, Types.BIGINT);
 			}
 
 			// GradoEscolarAnterior
-			pstmtBitacora.setString(12, lstBitacora.get(i).getActualizaGradoEscolar() ? lstBitacora.get(i).getGradoEscolarAnterior() : null);
+			pstmtBitacora.setString(12, lstBitacora.get(i).getActualizaGradoEscolar().booleanValue() ? lstBitacora.get(i).getGradoEscolarAnterior() : null);
 			
 			//EstatusBeneficiario
-			pstmtBitacora.setString(13, lstBitacora.get(i).getActualizaEstatus() ? lstBitacora.get(i).getEstatusBeneficiarioAnterior() : null);
+			pstmtBitacora.setString(13, lstBitacora.get(i).getActualizaEstatus().booleanValue() ? lstBitacora.get(i).getEstatusBeneficiarioAnterior() : null);
 
 			// FechaRegistro
 			pstmtBitacora.setTimestamp(14, new Timestamp(lstBitacora.get(i).getFechaRegistro().getTime()));
@@ -146,43 +146,43 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 			
 			strQuery.append("UPDATE mibecaparaempezar.solicitud ");
 			strQuery.append("SET ");
-			if (bitacora.getActualizaNivelEducativo()) {
+			if (bitacora.getActualizaNivelEducativo().booleanValue()) {
 				strQuery.append("id_nivel_educativo = ").append(bitacora.getIdNivelEducativoActualizado()).append(", ");
 				++contador; // 1
 			}
-			if (bitacora.getActualizaCct()) {
-				strQuery.append("cct = '").append(bitacora.getCctActualizado()).append("', ");
+			if (bitacora.getActualizaCct().booleanValue()) {
+				strQuery.append("cct = '").append(bitacora.getCctActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 2
 			}
-			if (bitacora.getActualizaTurno()) {
-				strQuery.append("turno = '").append(bitacora.getIdTurnoActualizado()).append("', ");
+			if (bitacora.getActualizaTurno().booleanValue()) {
+				strQuery.append("turno = '").append(bitacora.getIdTurnoActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 3
 			}
-			if (bitacora.getActualizaGradoEscolar()) {
-				strQuery.append("grado_escolar = '").append(bitacora.getGradoEscolarActualizado()).append("', ");
+			if (bitacora.getActualizaGradoEscolar().booleanValue()) {
+				strQuery.append("grado_escolar = '").append(bitacora.getGradoEscolarActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 4
 			}
-			if (bitacora.getActualizaNombre()) {
-				strQuery.append("nombre = '").append(bitacora.getNombreCctActualizado()).append("', ");
+			if (bitacora.getActualizaNombre().booleanValue()) {
+				strQuery.append("nombre = '").append(bitacora.getNombreCctActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 5
 			}
-			if (bitacora.getActualizaCalle()) {
-				strQuery.append("calle = '").append(bitacora.getCalleCctActualizado()).append("', ");
+			if (bitacora.getActualizaCalle().booleanValue()) {
+				strQuery.append("calle = '").append(bitacora.getCalleCctActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 6
 			}
-			if (bitacora.getActualizaColonia()) {
-				strQuery.append("colonia = '").append(bitacora.getColoniaCctActualizado()).append("', ");
+			if (bitacora.getActualizaColonia().booleanValue()) {
+				strQuery.append("colonia = '").append(bitacora.getColoniaCctActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 7
 			}
-			if (bitacora.getActualizaAlcaldia()) {
+			if (bitacora.getActualizaAlcaldia().booleanValue()) {
 				strQuery.append("id_alcaldia = ").append(bitacora.getIdAlcaldiaCctActualizado()).append(", ");
 				++contador; // 8
 			}
-			if (bitacora.getActualizaCodigoPostal()) {
-				strQuery.append("codigopostal = '").append(bitacora.getCodigoPostalCctActualizado()).append("', ");
+			if (bitacora.getActualizaCodigoPostal().booleanValue()) {
+				strQuery.append("codigopostal = '").append(bitacora.getCodigoPostalCctActualizado().replaceAll("'", "")).append("', ");
 				++contador; // 9
 			}
-			if (bitacora.getActualizaEstatus()) {
+			if (bitacora.getActualizaEstatus().booleanValue()) {
 				strQuery.append("id_estatus_beneficiario = 1 ").append(", ");
 				++contador; // 10
 			}
@@ -202,11 +202,11 @@ public class BitacoraDAO extends IBaseDAO<BeneficiarioDispersionDTO, Integer> {
 				stm = conn.createStatement();
 				int registrosAfectados = stm.executeUpdate(strQueryFinal);
 				if (registrosAfectados < 1) {
-					throw new IllegalArgumentException("El idSolicitud " + bitacora.getIdSolicitud() + " no se actualizó correctamente [" + strQueryFinal + "]");
+					throw new IllegalArgumentException("El idSolicitud " + bitacora.getIdSolicitud() + " no se actualizo correctamente [" + strQueryFinal + "]");
 				}
 			} catch (SQLException e1) {
 				LOGGER.error(
-						"Ocurrió un error al actualizar un archivo de padrón con el DML [" + strQueryFinal + "]:",
+						"Ocurrio un error al actualizar la solicitud con el DML [" + strQueryFinal + "]:",
 						e1);
 			} finally {
 				PostgresDatasource.getInstance().close(null, stm, conn);

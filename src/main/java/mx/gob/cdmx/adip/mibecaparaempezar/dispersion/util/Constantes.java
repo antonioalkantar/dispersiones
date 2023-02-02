@@ -135,7 +135,7 @@ public final class Constantes {
 	public static final String DESC_CAM_LABORAL = "CENTRO DE ATENCIÓN MÚLTIPLE LABORAL";
 	public static final int ID_OTRO = 99;
 	public static final String DESC_OTRO = "OTRO";
-
+	public static final String PUBLICA = "pública";
 	public static final String LADA_NACIONAL = "52";
 
 	// NIVELES EDUCATIVOS PADRON EXTERNO
@@ -150,10 +150,13 @@ public final class Constantes {
     public static final Integer ID_MUNICIPIO_FORANEO = 18;
     public static final Integer CODIGO_PAGATODO_NO_ENVIADO = 99;
 	// MOTIVOS NO DISPERSION
-	public static final long TUTOR_NO_APROBADO = 1;
-	public static final long BENEFICIARIO_NO_ACTIVO = 2;
-	public static final long BENEFICIARIO_SIN_NUMERO_CUENTA = 3;
-	public static final long FALLO_SERVICIO_AUTORIDAD_EDUCATIVA = 4;
+	public static final long TUTOR_NO_APROBADO = 1l;
+	public static final long BENEFICIARIO_NO_ACTIVO = 2l;
+	public static final long BENEFICIARIO_SIN_NUMERO_CUENTA = 3l;
+	public static final long FALLO_SERVICIO_AUTORIDAD_EDUCATIVA = 4l;
+	public static final long FALLO_ERROR_DESCONOCIDO = 5l;
+	public static final long FECHA_REGISTRO_ES_MENOR = 6l;
+	public static final long ESCUELA_NO_PUBLICA = 7l;
 	// ESTATUS PADRON
 	public static final String PADRON_EXTERNO_ACTIVO = "ACTIVO";
 

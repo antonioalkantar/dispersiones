@@ -67,6 +67,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  s.grado_escolar as idGradoEscolar, ");
 		strQuery.append("  b.id_beneficiario as idBeneficiario, ");
 		strQuery.append("  b.curp_beneficiario as curpBeneficiario, ");
+		strQuery.append("  b.fecha_registro as fechaRegistro, ");
 		strQuery.append("  s.id_solicitud as idSolicitud, ");
 		strQuery.append("  s.id_estatus_beneficiario as idEstatusBeneficiario, ");
 		strQuery.append("  s.externo as esExterno, ");
@@ -98,6 +99,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("INNER JOIN mibecaparaempezar.cat_ciclo_escolar cce  ");
 		strQuery.append("  on cce.id_ciclo_escolar = e.id_ciclo_escolar  ");
 		strQuery.append("WHERE ce.id_estatus !=  1 AND cce.estatus = true  ");
+//		strQuery.append("AND s.id_nivel_educativo = 1 and t.id_estatus = 6  ");
+//		strQuery.append("AND b.curp_beneficiario = 'MAMA170901HDFRNNA1'");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud ASC ");
 
@@ -133,6 +136,7 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  s.grado_escolar as idGradoEscolar, ");
 		strQuery.append("  b1.id_beneficiario as idBeneficiario, ");
 		strQuery.append("  b1.curp_beneficiario as curpBeneficiario, ");
+		strQuery.append("  b1.fecha_registro as fechaRegistro, ");
 		strQuery.append("  s.id_solicitud as idSolicitud, ");
 		strQuery.append("  s.id_estatus_beneficiario as idEstatusBeneficiario, ");
 		strQuery.append("  s.externo as esExterno, ");
@@ -143,8 +147,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  s.calle as calle, ");
 		strQuery.append("  s.colonia as colonia, ");
 		strQuery.append("  s.id_alcaldia as alcaldia, ");
-		strQuery.append("  s.codigopostal as codigoPostal, ");
-		strQuery.append("  bsda.id_beneficiario_sin_dispersion as idBeneficiarioSinDispersion ");
+		strQuery.append("  s.codigopostal as codigoPostal ");
+//		strQuery.append("  bsda.id_beneficiario_sin_dispersion as idBeneficiarioSinDispersion ");
 		strQuery.append("FROM mibecaparaempezar.tutor t ");
 		strQuery.append("INNER JOIN mibecaparaempezar.solicitud s ");
 		strQuery.append("  on t.id_usuario_llave_cdmx = s.id_usuario_llave_cdmx ");
@@ -157,8 +161,8 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  	AND bs.id_beneficiario_dispersion IS NULL");
 		strQuery.append("  )) as b1 ");
 		strQuery.append(" ) b1 on b1.id_beneficiario = cbs.id_beneficiario ");
-		strQuery.append("INNER JOIN mibecaparaempezar.beneficiario_sin_dispersion bsda ");
-		strQuery.append("  on bsda.curp_beneficiario = b1.curp_beneficiario ");
+//		strQuery.append("INNER JOIN mibecaparaempezar.beneficiario_sin_dispersion bsda ");
+//		strQuery.append("  on bsda.curp_beneficiario = b1.curp_beneficiario ");
 		strQuery.append("LEFT JOIN mibecaparaempezar.det_cuenta_beneficiario dcb ");
 		strQuery.append("  on dcb.id_beneficiario = b1.id_beneficiario ");
 		strQuery.append("INNER JOIN mibecaparaempezar.cat_estatus ce ");
@@ -171,9 +175,11 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		strQuery.append("  on ceb.id_estatus_beneficiario = s.id_estatus_beneficiario  ");
 		strQuery.append("INNER JOIN mibecaparaempezar.cat_ciclo_escolar cce ");
 		strQuery.append("  on cce.id_ciclo_escolar = e.id_ciclo_escolar ");
-		strQuery.append("WHERE bsda.id_dispersion = ").append(idDispersion);
-		strQuery.append("  AND bsda.id_beneficiario_dispersion IS NULL ");
-		strQuery.append("  AND ce.id_estatus !=  1 AND cce.estatus = true ");
+		strQuery.append("WHERE  ");
+//		strQuery.append("WHERE bsda.id_dispersion = ").append(idDispersion);
+//		strQuery.append("  AND bsda.id_beneficiario_dispersion IS NULL ");
+//		strQuery.append("  AND ce.id_estatus !=  1 AND cce.estatus = true ");
+		strQuery.append("  ce.id_estatus !=  1 AND cce.estatus = true ");
 		strQuery.append("ORDER BY ");
 		strQuery.append("  s.fecha_solicitud asc; ");
 
@@ -253,9 +259,10 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		bst.setIdEstatusTutor(rs.getLong("idEstatusTutor"));
 		bst.setNumeroCuenta(rs.getString("numeroCuenta"));
 		bst.setIdNivelEducativo(rs.getLong("idNivelEducativo"));
-		bst.setIdGradoEscolar(rs.getLong("idGradoEscolar"));
+		bst.setIdGradoEscolar(rs.getString("idGradoEscolar"));
 		bst.setIdBeneficiario(rs.getLong("idBeneficiario"));
 		bst.setCurpBeneficiario(rs.getString("curpBeneficiario"));
+		bst.setFechaRegistro(rs.getDate("fechaRegistro"));
 		bst.setIdSolicitud(rs.getLong("idSolicitud"));
 		bst.setIdEstatusBeneficiario(rs.getLong("idEstatusBeneficiario"));
 		bst.setEsExterno(rs.getBoolean("esExterno"));
@@ -267,9 +274,9 @@ public class BeneficiarioDAO extends IBaseDAO<BeneficiarioDTO, Integer> {
 		bst.setColoniaSolicitud(rs.getString("colonia"));
 		bst.setAlcaldiaSolicitud(rs.getLong("alcaldia"));
 		bst.setCodigoPostalSolicitud(rs.getString("codigoPostal"));
-		if(esComplementaria) {
-			bst.setIdBeneficiarioSinDispersion(rs.getLong("idBeneficiarioSinDispersion"));
-		}
+//		if(esComplementaria) {
+//			bst.setIdBeneficiarioSinDispersion(rs.getLong("idBeneficiarioSinDispersion"));
+//		}
 		return bst;
 	}
 	

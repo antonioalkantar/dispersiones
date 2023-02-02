@@ -1,5 +1,7 @@
 package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto;
 
+import java.util.Date;
+
 public class BeneficiarioSolicitudTutorDTO {
 
 	private Long idUsuario;
@@ -7,9 +9,10 @@ public class BeneficiarioSolicitudTutorDTO {
 	private Long idEstatusTutor;
 	private String numeroCuenta;
 	private Long idNivelEducativo;
-	private Long idGradoEscolar;
+	private String idGradoEscolar;
 	private Long idBeneficiario;
 	private String curpBeneficiario;
+	private Date fechaRegistro;
 	private Long idSolicitud;
 	private Long idEstatusBeneficiario;
 	private Boolean esExterno;
@@ -55,11 +58,11 @@ public class BeneficiarioSolicitudTutorDTO {
 		this.idNivelEducativo = idNivelEducativo;
 	}
 
-	public Long getIdGradoEscolar() {
+	public String getIdGradoEscolar() {
 		return idGradoEscolar;
 	}
 
-	public void setIdGradoEscolar(Long idGradoEscolar) {
+	public void setIdGradoEscolar(String idGradoEscolar) {
 		this.idGradoEscolar = idGradoEscolar;
 	}
 
@@ -181,6 +184,14 @@ public class BeneficiarioSolicitudTutorDTO {
 
 	public void setIdEstatusBeneficiario(Long idEstatusBeneficiario) {
 		this.idEstatusBeneficiario = idEstatusBeneficiario;
+	}
+
+	public Date getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(Date fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
 	}
 	
 }

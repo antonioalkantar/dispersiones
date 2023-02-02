@@ -86,7 +86,7 @@ public class BeneficiarioSinDispersionDAO extends IBaseDAO<BeneficiarioSinDisper
 			pstmtSinDispersion.setLong(5, beneficiariosSinDispersiones.get(i).getCatNiveEducativo().getIdNivel());
 			
 			// Monto No Dispersion
-			pstmtSinDispersion.setLong(6, 1l);
+			pstmtSinDispersion.setLong(6, beneficiariosSinDispersiones.get(i).getCatMotivoNoDispersion().getIdMotivoNoDispersion());
 			
 			// Monto Apoyo
 			pstmtSinDispersion.setDouble(7, beneficiariosSinDispersiones.get(i).getCatMontoApoyo().getIdMontoApoyo());

@@ -1,5 +1,6 @@
 package mx.gob.cdmx.adip.mibecaparaempezar.dispersion.business;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.CatMontoApoyoDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.DispersionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.dto.ResultadoEjecucionDTO;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.environment.Environment;
+import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.multithreading.ContadorErroresSynchronized;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.multithreading.ContadorProgresoSynchronized;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.multithreading.ValidaBeneficiarioCallable;
 import mx.gob.cdmx.adip.mibecaparaempezar.dispersion.util.Constantes;
@@ -65,7 +67,7 @@ public class ValidaBeneficiarios {
 
 		lstCatMontoApoyo = catMontoApoyoDAO.buscarTodos();
 
-		LOGGER.info("************* INICIA PROCESO DE DISPERSIÓN ****************");
+		LOGGER.info("************* INICIA PROCESO DE DISPERSION ****************");
 		// 1. Se obtiene de la BD las dispersiones en espera de procesar
 		DispersionDTO dispersionBuscarDTO = new DispersionDTO();
 		dispersionBuscarDTO
@@ -80,9 +82,9 @@ public class ValidaBeneficiarios {
 			return;
 		}
 
-		LOGGER.info("Número de dispersiones pendientes de procesar: " + lstDispersionesDTO.size());
+		LOGGER.info("Numero de dispersiones pendientes de procesar: " + lstDispersionesDTO.size());
 		for (DispersionDTO dispersionDTO : lstDispersionesDTO) {
-			LOGGER.info("**************** Procesando id_archivo: " + dispersionDTO.getIdDispersion() + ", tipo:"
+			LOGGER.info("**************** Procesando dispersion: " + dispersionDTO.getIdDispersion() + ", tipo:"
 					+ dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() + "  **********************");
 			ExecutorService executor = null;
 			try {
@@ -94,7 +96,7 @@ public class ValidaBeneficiarios {
 				List<BeneficiarioSolicitudTutorDTO> lstBeneficiarios = null;
 				List<BeneficiarioSolicitudTutorDTO> lstBeneficiariosNoDispersados = null;
 				
-				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
+				if(dispersionDTO.getCatTipoDispersion().getIdTipoDispersion().longValue() == Constantes.ID_TIPO_DISPERSION_COMPLEMENTARIA) {
 					// 3.1 Se obtiene la ultima dispersion para procesar sus beneficiarios no dispersados
 					DispersionDTO ultimaDispersion = dispersionDAO.obtenerUltimaDispersionPorFechaConclusion(dispersionDTO);
 					// 3.2 Se obtienen los registros de beneficiarios
@@ -115,15 +117,14 @@ public class ValidaBeneficiarios {
 				ContadorProgresoSynchronized.reset();
 				ContadorProgresoSynchronized.setMeta(lstBeneficiarios.size());
 
-				// 4. Se divide la carga del archivos en hilos de ejecución (Callables)
+				// 4. Se divide la carga del archivos en hilos de ejecucion (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
 				List<Callable<ResultadoEjecucionDTO>> lstHilosBeneficiarios = dividirCarga(dispersionDTO, lstBeneficiarios, lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO);
 				LOGGER.info("Se prepararon " + lstHilosBeneficiarios.size() + " hilos de ejecución.");
 
-				// 5. Se invocan los diversos hilos de ejecución para realizar los inserts de
-				// manera paralela
+				// 5. Se invocan los diversos hilos de ejecucion para realizar los inserts de manera paralela
 				LOGGER.info("Procesadores disponibles para multithreading: " + Runtime.getRuntime().availableProcessors());
-				LOGGER.info("Invocando hilos de ejecución...");
+				LOGGER.info("Invocando hilos de ejecucion...");
 				executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 				List<Future<ResultadoEjecucionDTO>> lstFuturosResultados = executor.invokeAll(lstHilosBeneficiarios);
 
@@ -136,8 +137,9 @@ public class ValidaBeneficiarios {
 					intTotalRegistrosDispersados += future.get().getTotalDispersados();
 					intTotalRegistrosNoDispersados += future.get().getTotalNoDispersados();
 				}
-				double porcentajeDispersados =  Math.round((intTotalRegistrosDispersados * 100) / intTotalRegistrosProcesados);
-				double porcentajeNoDispersados =  Math.round((intTotalRegistrosNoDispersados * 100) / intTotalRegistrosProcesados);
+				DecimalFormat df = new DecimalFormat("0.00");
+				String porcentajeDispersados =  df.format((intTotalRegistrosDispersados * 100) / intTotalRegistrosProcesados);
+				String porcentajeNoDispersados =  df.format((intTotalRegistrosNoDispersados * 100) / intTotalRegistrosProcesados);
 				
 				// 7. Se divide la carga del archivos en hilos de ejecución (Callables)
 				LOGGER.info("Preparando los hilos de ejecución...");
@@ -147,7 +149,7 @@ public class ValidaBeneficiarios {
 					LOGGER.info("Se prepararon " + lstHilosBeneficiariosNoDispersados.size() + " hilos de ejecución.");
 					// 7.1. Se invocan los diversos hilos de ejecución para realizar los inserts de manera paralela
 					LOGGER.info("Procesadores disponibles para multithreading: " + Runtime.getRuntime().availableProcessors());
-					LOGGER.info("Invocando hilos de ejecución...");
+					LOGGER.info("Invocando hilos de ejecucion...");
 					executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 					executor.invokeAll(lstHilosBeneficiariosNoDispersados);
 				}
@@ -161,10 +163,13 @@ public class ValidaBeneficiarios {
 
 				// 8. Actualizar datos generales de la dispersion(Num de registros, dispersados, No dispersados)
 				if (intTotalRegistrosProcesados != lstBeneficiarios.size()) {
-					LOGGER.warn("No coincidió el número de registros procesados vs el número de registros obtenidos de la BD");
+					LOGGER.warn("No coincidio el numero de registros procesados VS el numero de registros obtenidos de la BD");
 				}
+				
+				//Se pintan las curps que no fueron dispersados
+				ContadorErroresSynchronized.mostrarCurpsConErrores();
 
-				dispersionDAO.actualizarContadores(dispersionDTO, porcentajeDispersados, (int) intTotalRegistrosDispersados, porcentajeNoDispersados, (int) intTotalRegistrosNoDispersados);
+				dispersionDAO.actualizarContadores(dispersionDTO, Double.parseDouble(porcentajeDispersados), (int) intTotalRegistrosDispersados, Double.parseDouble(porcentajeNoDispersados), (int) intTotalRegistrosNoDispersados);
 
 				// 9. Lista para reportes CSV con Dispersion
 				Map<String, List<BeneficiarioDispersionReporteDTO>> mapaReportesNivelAcademicoConDispersion = new HashMap<>();
@@ -191,8 +196,11 @@ public class ValidaBeneficiarios {
 				}
 				// 13. Se actualiza la fecha Concluido del proceso
 				dispersionDAO.actualizarFechaConcluido(dispersionDTO.getIdDispersion(), new Date());
+				
+				//Se reinicia la lista
+				ContadorErroresSynchronized.reiniciarListasDeErrores();
 			} catch (Exception e) {
-				LOGGER.error("Ocurrió un error al procesar la dispersión con ID:" + dispersionDTO.getIdDispersion() + ":", e);
+				LOGGER.error("Ocurrio un error al procesar la dispersion con ID:" + dispersionDTO.getIdDispersion() + ":", e);
 			} finally {
 				executor.shutdown(); // Al final se cierra el ExecutorService
 			}
@@ -262,8 +270,7 @@ public class ValidaBeneficiarios {
 		List<List<BeneficiarioSolicitudTutorDTO>> lstCargaDividida = ListUtils.partition(lstBeneficiarios,
 				tamanioSublistas);
 
-		int indexInicial = 1; // Con esta variable indicamos a partir de que registro se va a procesar la info
-								// en cada Thread
+		int indexInicial = 1; // Con esta variable indicamos a partir de que registro se va a procesar la info en cada Thread
 		for (List<BeneficiarioSolicitudTutorDTO> listBeneficiarios : lstCargaDividida) {
 			lstThreads.add(new ValidaBeneficiarioCallable(dispersionDTO, listBeneficiarios, indexInicial,
 					lstCatMontoApoyo, beneficiarioDispersionDAO, beneficiarioSinDispersionDAO, dispersionDAO, bitacoraDAO, padronExternoDAO));
